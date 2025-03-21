@@ -1,9 +1,10 @@
 <script setup>
 import { onMounted } from 'vue';
+import Button from './ui/button/Button.vue';
 </script>
 
 <template>
     <div>
-        <!-- Your PrimeVue components will go here -->
+        <Button>Click me</Button>
     </div>
 </template>
