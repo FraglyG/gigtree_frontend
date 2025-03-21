@@ -148,12 +148,12 @@ const navSections: NavSection[] = [
 </template>
 
 <style scoped lang="postcss">
+/* kinda scuffed but it works */
 
 .ribbon_entry {
     @apply tw-p-6;
 }
 
-/* kinda scuffed but it works */
 :deep([data-menu-item]>a),
 :deep([data-menu-item]>button) {
     @apply ribbon_entry;

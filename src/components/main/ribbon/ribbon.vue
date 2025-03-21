@@ -2,6 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Logo from '../../brand/logo.vue';
 import RibbonNav from "./ribbon_nav.vue";
+import { User } from 'lucide-vue-next';
 
 </script>
 
@@ -16,7 +17,7 @@ import RibbonNav from "./ribbon_nav.vue";
             <div class="tw-col-span-1 tw-flex tw-justify-end">
                 <Avatar class="tw-w-14 tw-h-14">
                     <AvatarImage src="https://isdev.co/pfp.png" />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarFallback><User /></AvatarFallback>
                 </Avatar>
             </div>
             <!-- Navigation -->
@@ -34,7 +35,7 @@ import RibbonNav from "./ribbon_nav.vue";
             <div class="tw-flex tw-justify-end">
                 <Avatar class="tw-w-14 tw-h-14">
                     <AvatarImage src="https://isdev.co/pfp.png" />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarFallback><User /></AvatarFallback>
                 </Avatar>
             </div>
         </div>

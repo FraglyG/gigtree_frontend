@@ -1,11 +1,10 @@
 ---
-import GigCard from "@/components/app/GigCard.vue";
-import Logo from "@/components/brand/logo.vue";
+import ExampleCards from "@/components/example_cards.vue";
 import MainLayout from "@/layouts/MainLayout.astro";
 ---
 
 <MainLayout>
-	<div class="tw-m-10">
-		<GigCard />
-	</div>
+  <div class="tw-w-full tw-flex tw-flex-1 tw-flex-wrap tw-gap-8">
+    <ExampleCards client:load />
+  </div>
 </MainLayout>
