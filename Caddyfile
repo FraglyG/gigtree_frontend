@@ -3,7 +3,7 @@
 	persist_config off # storage isn't persistent anyway
 	auto_https off # https handled in prod environment
 	log {
-		format json
+		format console
 	}
 	servers {
 		trusted_proxies static private_ranges # trust railway's proxy
@@ -12,7 +12,7 @@
 
 :{$PORT} {
 	log {
-		format json
+		format console
 	}
 
 	respond /health 200
