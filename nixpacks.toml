@@ -1,0 +1,20 @@
+# https://nixpacks.com/docs/configuration/file
+
+[variables]
+    NPM_CONFIG_UPDATE_NOTIFIER = 'false'
+    NPM_CONFIG_FUND = 'false'
+
+# download caddy from nix
+[phases.caddy]
+    dependsOn = ['setup']
+    nixpkgsArchive = 'ba913eda2df8eb72147259189d55932012df6301' # Caddy v2.8.4 - https://github.com/NixOS/nixpkgs/commit/ba913eda2df8eb72147259189d55932012df6301
+    nixPkgs = ['caddy']
+
+# format the Caddyfile with fmt
+[phases.fmt]
+    dependsOn = ['caddy']
+    cmds = ['caddy fmt --overwrite Caddyfile']
+
+# start the caddy web server
+[start]
+    cmd = 'exec caddy run --config Caddyfile --adapter caddyfile 2>&1'      # start caddy using the Caddyfile config and caddyfile adapter
