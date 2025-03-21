@@ -7,10 +7,25 @@ This is the frontend GigTree. GigTree is a client to client freelance platform f
 To get this running locally, run the following commands:
 
 ```bash
+# Initial Setup
 git clone gigtree_frontend
 npm install
 npm run build
+
+# Boot Production Preview Server (NOT FOR PRODUCTION, see below)
 npm run start
+```
+
+For development
+
+```bash
+# Initial Setup
+git clone gigtree_frontend
+npm install
+npm run build
+
+# Boot Development Server
+npm run dev
 ```
 
 ## Production
