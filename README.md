@@ -15,4 +15,5 @@ npm run start
 
 ## Production
 
-In production, this will be served via Caddy reverse proxy. (Coming Soon)
+For production, the files should be served via a Caddy reverse proxy. 
+Works out of the box for the Nixpacks builder.
