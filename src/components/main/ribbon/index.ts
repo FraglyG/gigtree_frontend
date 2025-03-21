@@ -1,0 +1,1 @@
+export { default as Ribbon } from './ribbon.vue';
