@@ -1,0 +1,41 @@
+<script lang="ts" setup>
+import { Card, CardThumbnail, CardHeader, CardFooter, CardBody } from '@/components/ui/Card';
+import { Photo, PhotoFallback } from '../Photo';
+import { Skeleton } from '../Skeleton';
+
+defineProps<{
+    userId: string;
+    name: string;
+    description: string;
+    thumbnailUrl: string;
+}>();
+</script>
+
+<template>
+    <Card class="tw-w-[230px]">
+        <CardThumbnail v-if="thumbnailUrl">
+            <Photo :src="thumbnailUrl" alt="Gig Thumbnail">
+                <PhotoFallback>
+                    <Skeleton class="tw-w-full tw-h-[100px]" />
+                </PhotoFallback>
+            </Photo>
+        </CardThumbnail>
+
+        <CardHeader class="tw-p-5 tw-pt-2">
+            <h2 class="tw-font-semibold">{{ name }}</h2>
+            <p class="tw-text-sm tw-text-muted-foreground">{{ description }}</p>
+        </CardHeader>
+
+        <!-- for tags later -->
+
+        <!-- <CardBody class="tw-p-5 tw-pt-2">
+            <h2 class="tw-font-semibold">{{ name }}</h2>
+            <p class="tw-text-sm tw-text-muted-foreground">{{ description }}</p>
+        </CardBody> -->
+
+        <CardFooter class="tw-p-5 tw-pt-2">
+            <button class="btn btn-primary">Action</button>
+            <button class="btn btn-secondary">Secondary Action</button>
+        </CardFooter>
+    </Card>
+</template>
