@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Card, CardThumbnail, CardHeader, CardFooter, CardBody } from '@/components/ui/Card';
-import { Photo, PhotoFallback } from '../Photo';
+import { Photo, PhotoFallback, PhotoLoading } from '../Photo';
 import { Skeleton } from '../Skeleton';
 
 defineProps<{
@@ -14,10 +14,10 @@ defineProps<{
 <template>
     <Card class="tw-w-[230px]">
         <CardThumbnail v-if="thumbnailUrl">
-            <Photo :src="thumbnailUrl" alt="Gig Thumbnail">
-                <PhotoFallback>
-                    <Skeleton class="tw-w-full tw-h-[100px]" />
-                </PhotoFallback>
+            <Photo skeleton :src="thumbnailUrl" alt="Gig Thumbnail">
+                <PhotoLoading>
+                    <Skeleton containerClass="tw-w-full tw-h-[100px]" />
+                </PhotoLoading>
             </Photo>
         </CardThumbnail>
 

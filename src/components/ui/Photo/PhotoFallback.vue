@@ -1,24 +1,25 @@
 <script setup lang="ts">
-// PhotoFallback is now just a simple styling wrapper
-// The show/hide logic is handled by the parent Photo component
+import { inject } from 'vue';
+
+const photoLoaded = inject('photoLoaded', false)
+const photoError = inject('photoError', false)
 </script>
 
 <template>
-    <div class="photo-fallback">
+    <div v-if="photoError && !photoLoaded" class="photo-fallback">
         <slot></slot>
     </div>
 </template>
 
 <style scoped>
 .photo-fallback {
+    top: 0;
+    left: 0;
     width: 100%;
-    height: fit-content;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.is-hidden {
-    display: none;
+    z-index: 10;
 }
 </style>

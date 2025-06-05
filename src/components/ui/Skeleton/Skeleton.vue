@@ -1,15 +1,21 @@
 <script setup lang="ts">
+import { toRefs } from 'vue';
 
-const props = defineProps<{
+
+const props = withDefaults(defineProps<{
     class?: string;
-}>();
+    containerClass?: string;
+}>(), {
+    class: "tw-w-full tw-h-full",
+    containerClass: "tw-w-fit tw-h-fit"
+});
 
-const customClass = props.class;
+const customClass = toRefs(props).class;
 
 </script>
 
 <template>
-    <div class="tw-w-full tw-h-full tw-bg-black">
+    <div :class="['tw-bg-black', containerClass]">
         <div :class="['tw-animate-pulse tw-bg-gray-800', customClass]"></div>
     </div>
 </template>

@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { Photo, PhotoFallback, PhotoLoading } from '@/components/ui/Photo';
 import Logo from '../../brand/logo.vue';
 // import RibbonNav from "./ribbon_nav.vue";
 import { User } from 'lucide-vue-next';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 </script>
 
@@ -14,14 +16,14 @@ import { User } from 'lucide-vue-next';
                 <Logo />
             </div>
             <div class="tw-col-span-1 tw-flex tw-justify-end">
-                <!-- <Avatar class="tw-w-14 tw-h-14">
-                    <AvatarImage src="https://isdev.co/pfp.png" />
-                    <AvatarFallback>
-                        <User />
-                    </AvatarFallback>
-                </Avatar> -->
-                <img src="https://isdev.co/pfp.png" class="tw-w-14 tw-h-14 tw-rounded-full" />
-
+                <Photo src="https://isdev.co/pfp.png" alt="User Avatar" class="tw-w-14 tw-h-14 tw-rounded-full">
+                    <PhotoFallback>
+                        <User class="tw-w-14 tw-h-14" />
+                    </PhotoFallback>
+                    <PhotoLoading>
+                        <Skeleton class="tw-w-8 tw-h-8 tw-rounded-full tw-bg-gray-200" />
+                    </PhotoLoading>
+                </Photo>
             </div>
             <!-- Navigation -->
             <div class="tw-col-span-2 tw-flex tw-justify-center tw-mt-3">
@@ -37,14 +39,14 @@ import { User } from 'lucide-vue-next';
                 <div>Soon:tm:</div>
             </div>
             <div class="tw-flex tw-justify-end">
-                <!-- <Avatar class="tw-w-14 tw-h-14">
-                    <AvatarImage src="https://isdev.co/pfp.png" />
-                    <AvatarFallback>
-                        <User />
-                    </AvatarFallback>
-                </Avatar> -->
-                <img src="https://isdev.co/pfp.png" class="tw-w-14 tw-h-14 tw-rounded-full" />
-
+                <Photo src="https://isdev.co/pfp.png" class="tw-w-14 tw-h-14 tw-rounded-full">
+                    <PhotoFallback>
+                        <User class="tw-w-14 tw-h-14" />
+                    </PhotoFallback>
+                    <PhotoLoading>
+                        <Skeleton class="tw-w-14 tw-h-14 tw-rounded-full" />
+                    </PhotoLoading>
+                </Photo>
             </div>
         </div>
     </div>
