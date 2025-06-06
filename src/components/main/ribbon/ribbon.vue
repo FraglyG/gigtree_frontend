@@ -92,12 +92,11 @@ const PlaceholderNav = defineComponent({
                     Offline
                 </Button>
                 <Skeleton v-else-if="isLoading" class="tw-w-14 tw-h-14 tw-rounded-full" />
-                <Button v-else-if="!user && !isLoading && !isOffline" variant="information" outline size="md">
+                <Button v-else-if="!user && !isLoading && !isOffline" variant="information" outline size="md" href="/login">
                     <User class="tw-inline tw-mr-2" />
                     Login
                 </Button>
                 <UserAvatar v-else-if="user" />
-
             </div>
         </div>
     </div>

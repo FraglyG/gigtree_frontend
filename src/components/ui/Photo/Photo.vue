@@ -35,11 +35,7 @@ function handleImageError() {
 
 onMounted(async () => {
     // no src -> assume error
-    if (!props.src) {
-        imageError.value = true
-        isLoading.value = false
-        return
-    }
+    if (!props.src) return handleImageError();
 
     // Take a tea-break before checking the image again
     await nextTick()

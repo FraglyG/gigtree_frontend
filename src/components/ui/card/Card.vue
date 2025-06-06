@@ -1,10 +1,12 @@
-<script setup>
-defineProps({
-    customClass: {
-        type: String,
-        default: ''
-    }
-});
+<script setup lang="ts">
+import { toRefs } from 'vue';
+
+const props = defineProps<{
+    class?: string;
+}>();
+
+const { class: customClass } = toRefs(props);
+
 </script>
 
 <template>

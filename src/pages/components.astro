@@ -6,83 +6,67 @@ import MainLayout from "@/layouts/MainLayout.astro";
 ---
 
 <MainLayout>
-  <div>
-    <h2>Cards</h2>
-    <GigCard
-      client:load
-      name="Gig Card"
-      description="Card used for job-listings"
-      userId="0"
-      thumbnailUrl="https://picsum.photos/500/300.webp?random=1"
-    />
+	<div>
+		<h2>Cards</h2>
+		<GigCard client:load name="Gig Card" description="Card used for job-listings" userId="0" thumbnailUrl="https://picsum.photos/500/300.webp?random=1" />
 
-    <br />
+		<br />
 
-    <h2>Buttons</h2>
-    {
-      ["primary", "secondary", "information", "success", "muted"].map((variant) => (
-        <div class="section_ltr">
-          {/* Normal */}
-          {["lg", "md", "sm"].map((size) => (
-            <Button
-              size={size as any}
-              variant={variant as any}
-              outline={false}
-              client:load
-            >
-              {`${variant.charAt(0).toUpperCase() + variant.slice(1)}`}
-            </Button>
-          ))}
+		<h2>Buttons</h2>
+		{
+			["primary", "secondary", "information", "success", "muted"].map((variant) => (
+				<div class="section_ltr">
+					{/* Normal */}
+					{["lg", "md", "sm"].map((size) => (
+						<Button size={size as any} variant={variant as any} outline={false} client:load>
+							{`${variant.charAt(0).toUpperCase() + variant.slice(1)}`}
+						</Button>
+					))}
 
-          {/* Break */}
-          <div class="tw-w-5 tw-h-1" />
+					{/* Break */}
+					<div class="tw-w-5 tw-h-1" />
 
-          {/* Outline */}
-          {["lg", "md", "sm"].map((size) => (
-            <Button
-              size={size as any}
-              variant={variant as any}
-              outline={true}
-              client:load
-            >
-              {`${variant.charAt(0).toUpperCase() + variant.slice(1)}`}
-            </Button>
-          ))}
-        </div>
-      ))
-    }
+					{/* Outline */}
+					{["lg", "md", "sm"].map((size) => (
+						<Button size={size as any} variant={variant as any} outline={true} client:load>
+							{`${variant.charAt(0).toUpperCase() + variant.slice(1)}`}
+						</Button>
+					))}
+				</div>
+			))
+		}
 
-    <br />
+		<br />
 
-    <h2>Skeletons</h2>
-    <div class="tw-w-fit tw-h-fit tw-flex tw-flex-row tw-gap-2.5">
-        <Skeleton class="tw-w-14 tw-h-14 tw-rounded-full" />
-        <div class="tw-w-fit tw-h-fit tw-flex tw-flex-col tw-gap-2.5">
-            <div class="tw-w-fit tw-h-fit tw-flex tw-items-end tw-flex-row tw-gap-2">
-                <Skeleton class="tw-rounded tw-w-20 tw-h-5" />
-                <Skeleton class="tw-rounded tw-w-16 tw-h-4" />
-            </div>
-            <div class="tw-w-fit tw-h-fit tw-flex tw-flex-col tw-gap-2">
-                <Skeleton class="tw-rounded tw-w-80 tw-h-6" />
-                <Skeleton class="tw-rounded tw-w-60 tw-h-6" />
-            </div>
-        </div>
-    </div>
-  </div>
+		<h2>Skeletons</h2>
+		<div class="tw-w-fit tw-h-fit tw-flex tw-flex-row tw-gap-2.5">
+			<Skeleton class="tw-w-14 tw-h-14 tw-rounded-full" />
+			<div class="tw-w-fit tw-h-fit tw-flex tw-flex-col tw-gap-2.5">
+				<div class="tw-w-fit tw-h-fit tw-flex tw-items-end tw-flex-row tw-gap-2">
+					<Skeleton class="tw-rounded tw-w-20 tw-h-5" />
+					<Skeleton class="tw-rounded tw-w-16 tw-h-4" />
+				</div>
+				<div class="tw-w-fit tw-h-fit tw-flex tw-flex-col tw-gap-2">
+					<Skeleton class="tw-rounded tw-w-80 tw-h-6" />
+					<Skeleton class="tw-rounded tw-w-60 tw-h-6" />
+				</div>
+			</div>
+		</div>
+	</div>
 </MainLayout>
 
 <style>
-  h2 {
-    font-size: x-large;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-  }
+	h2 {
+		font-size: x-large;
+		margin-top: 2rem;
+		margin-bottom: 1rem;
+	}
 
-  .section_ltr {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    align-items: end;
-    margin-bottom: 1rem;
-  }
+	.section_ltr {
+		display: flex;
+		flex-direction: row;
+		gap: 1rem;
+		align-items: end;
+		margin-bottom: 1rem;
+	}
 </style>

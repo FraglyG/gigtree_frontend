@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { inject } from 'vue';
+import { inject, type Ref } from 'vue';
 
-const photoLoaded = inject('photoLoaded', false)
-const photoError = inject('photoError', false)
+const photoLoaded = inject<Ref<boolean>>('photoLoaded')
+const photoError = inject<Ref<boolean>>('photoError')
 </script>
 
 <template>

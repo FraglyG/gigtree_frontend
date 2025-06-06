@@ -35,6 +35,10 @@ const props = withDefaults(defineProps<{
     size?: "sm" | "md" | "lg";
     outline?: boolean;
     disabled?: boolean;
+    type?: "button" | "submit" | "reset";
+    class?: string;
+    id?: string;
+    href?: string;
 }>(), {
     variant: "primary",
     size: "md",
@@ -42,10 +46,10 @@ const props = withDefaults(defineProps<{
     disabled: false,
 })
 
-const { variant, disabled: isDisabled } = toRefs(props);
+const { variant, disabled, type, class: customClass } = toRefs(props);
 
 const variantClass = computed(() => {
-    const currentVariantStyle = variantList[props.variant] || variantList.primary;
+    const currentVariantStyle = variantList[variant.value] || variantList.primary;
     const sizeStyle = sizeList[props.size] || sizeList.md;
     const variantStyle = props.outline ? currentVariantStyle.outline : currentVariantStyle.base;
     return `${variantStyle} ${sizeStyle}`;
@@ -54,16 +58,9 @@ const variantClass = computed(() => {
 
 <template>
     <!-- remake .button in tw- tailwind classes -->
-    <button :class="['tw-rounded tw-font-semibold tw-transition-colors', variantClass]" :disabled="isDisabled">
+    <component :is="href ? 'a' : 'button'"
+        :class="['tw-rounded tw-font-semibold tw-transition-colors', variantClass, customClass]"
+        :disabled="href ? undefined : disabled" :type="href ? undefined : type" :id="id" :href="href">
         <slot></slot>
-    </button>
+    </component>
 </template>
-
-<style scoped>
-.button {
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    overflow: hidden;
-    background-color: hsl(var(--card));
-}
-</style>
