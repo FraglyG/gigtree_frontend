@@ -17,6 +17,44 @@ defineProps<{
                 <Skeleton class="tw-w-14 tw-h-14 tw-rounded-full" />
             </PhotoLoading>
         </Photo>
-        <p v-if="!hideName" class="tw-max-h-16 tw-text-[2.5rem] tw-font-bold tw-ml-2">GigTree</p>
+        <p v-if="!hideName" class="name tw-max-h-16 tw-text-[2.5rem] tw-font-bold tw-ml-2"></p>
     </div>
 </template>
+
+<style scoped>
+.name::before {
+    content: 'Gig';
+    display: inline-block;
+}
+
+.name::after {
+    content: 'Tree';
+    display: inline-block;
+}
+
+
+@media screen and (max-width: 640px) {
+    .name {
+        font-size: x-large;
+    }
+
+    /* Split into Gig\nTree */
+    .name::before {
+        content: 'Gig';
+        display: block;
+        line-height: 1.1;
+    }
+
+    .name::after {
+        content: 'Tree';
+        display: block;
+        line-height: 1.1;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .name {
+        display: none;
+    }
+}
+</style>

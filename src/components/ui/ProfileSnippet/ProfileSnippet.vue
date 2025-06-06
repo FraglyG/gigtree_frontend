@@ -8,10 +8,10 @@ const { user, isLoading, isOffline } = useGetUser();
 </script>
 
 <template>
-    <div class="tw-flex tw-flex-row">
+    <div class="tw-flex tw-flex-row tw-flex-wrap tw-gap-2 sm:tw-gap-4">
         <Avatar :size-px="56" :src="user?.profilePicture" />
 
-        <div class="tw-w-fit tw-flex tw-flex-col tw-justify-start tw-ml-4">
+        <div class="tw-w-fit tw-flex tw-flex-col tw-justify-start">
             <div v-if="isLoading" class="tw-flex tw-flex-row tw-gap-2">
                 <Skeleton class="tw-w-24 tw-h-5 tw-rounded-md" />
                 <Skeleton class="tw-w-24 tw-h-5 tw-rounded-md" />

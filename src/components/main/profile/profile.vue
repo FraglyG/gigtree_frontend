@@ -21,8 +21,8 @@ const isEditable = ref(true);
     <div>
         <!-- PROFILE -->
         <div>
-            <div class="tw-flex tw-flex-row tw-justify-between tw-flex-wrap">
-                <ProfileSnippet />
+            <div class="tw-flex tw-flex-row tw-justify-between tw-flex-wrap tw-flex-gap-8">
+                <ProfileSnippet class="tw-my-4" />
                 <div class="tw-flex tw-flex-row tw-gap-4 tw-items-center">
                     <!-- CTAs -->
                     <Button variant="primary" size="lg">
