@@ -3,8 +3,24 @@ import { Photo, PhotoFallback, PhotoLoading } from '@/components/ui/Photo';
 import Logo from '../../brand/logo.vue';
 import { User } from 'lucide-vue-next';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { computed, defineComponent, h } from 'vue';
+import { computed, defineComponent, h, onMounted, ref } from 'vue';
 import { Avatar } from '@/components/ui/Avatar';
+import { getUserCallback } from '@/lib/store';
+
+const user = ref<User | undefined>(undefined);
+const isLoading = ref(true);
+const isOffline = ref(false);
+
+onMounted(() => {
+    // fetch user
+    getUserCallback((_user, err) => {
+        isLoading.value = false;
+        user.value = _user;
+
+        if (err && err == "offline") isOffline.value = true;
+        else if (err) console.error(err);
+    }, { minified: false });
+})
 
 // ===== CONSTANTS =====
 const USER_AVATAR_URL = "https://isdev.co/pfp.png";
@@ -17,9 +33,6 @@ const userAvatarProps = computed(() => ({
     alt: "User Avatar",
     class: `${AVATAR_SIZE} tw-rounded-full`
 }));
-
-const avatarIconClass = computed(() => AVATAR_SIZE);
-const skeletonClass = computed(() => `${AVATAR_SIZE} tw-rounded-full`);
 
 // ===== LAYOUT CLASSES =====
 const layoutClasses = {

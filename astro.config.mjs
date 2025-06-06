@@ -10,4 +10,13 @@ export default defineConfig({
     port: 3001,
   },
   integrations: [vue(), tailwind({ applyBaseStyles: false })],
+  env: {
+    schema: {
+      PUBLIC_BACKEND_URL: {
+        type: 'string',
+        context: 'client',
+        access: 'public',
+      }
+    }
+  }
 });

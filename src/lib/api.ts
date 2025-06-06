@@ -82,5 +82,5 @@ class ApiClient {
     }
 }
 
-if (!import.meta.env.PUBLIC_ALFRED_BACKEND_URL) throw new Error('Missing env var: PUBLIC_ALFRED_BACKEND_URL');
-export const api = new ApiClient(import.meta.env.PUBLIC_ALFRED_BACKEND_URL);
+if (!import.meta.env.PUBLIC_BACKEND_URL) throw new Error('Missing env var: PUBLIC_BACKEND_URL');
+export const api = new ApiClient(import.meta.env.PUBLIC_BACKEND_URL);
