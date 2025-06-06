@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { computed, defineComponent, h, onMounted, ref } from 'vue';
 import { Avatar } from '@/components/ui/Avatar';
 import { getUserCallback } from '@/lib/store';
+import { Button } from '@/components/ui/Button';
 
 const user = ref<User | undefined>(undefined);
 const isLoading = ref(true);
@@ -71,7 +72,8 @@ const PlaceholderNav = defineComponent({
         <div :class="layoutClasses.mobile.wrapper">
             <div :class="layoutClasses.mobile.header">
                 <Logo />
-                <UserAvatar />
+
+                <p> IMPLEMENT MEEE </p>
             </div>
             <div :class="layoutClasses.mobile.navigation">
                 <PlaceholderNav />
@@ -85,7 +87,17 @@ const PlaceholderNav = defineComponent({
                 <PlaceholderNav />
             </div>
             <div :class="layoutClasses.desktop.avatar">
-                <UserAvatar />
+                <Button v-if="isOffline" disabled variant="secondary" outline size="md">
+                    <User class="tw-inline tw-mr-2" />
+                    Offline
+                </Button>
+                <Skeleton v-else-if="isLoading" class="tw-w-14 tw-h-14 tw-rounded-full" />
+                <Button v-else-if="!user && !isLoading && !isOffline" variant="information" outline size="md">
+                    <User class="tw-inline tw-mr-2" />
+                    Login
+                </Button>
+                <UserAvatar v-else-if="user" />
+
             </div>
         </div>
     </div>

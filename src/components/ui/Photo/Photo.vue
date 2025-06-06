@@ -22,14 +22,12 @@ provide('isLoading', isLoading)
 
 // Image load handlers
 function handleImageLoaded() {
-    console.log(`LOADED: ${props.src}`)
     imageLoaded.value = true
     imageError.value = false
     isLoading.value = false
 }
 
 function handleImageError() {
-    console.log(`ERROR: ${props.src}`)
     imageLoaded.value = false
     imageError.value = true
     isLoading.value = false

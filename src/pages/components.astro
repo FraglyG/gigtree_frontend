@@ -1,5 +1,5 @@
 ---
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/Button";
 import { GigCard } from "@/components/ui/GigCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 import MainLayout from "@/layouts/MainLayout.astro";
@@ -20,7 +20,7 @@ import MainLayout from "@/layouts/MainLayout.astro";
 
     <h2>Buttons</h2>
     {
-      ["primary", "secondary", "information", "success"].map((variant) => (
+      ["primary", "secondary", "information", "success", "muted"].map((variant) => (
         <div class="section_ltr">
           {/* Normal */}
           {["lg", "md", "sm"].map((size) => (
