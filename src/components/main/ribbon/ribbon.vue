@@ -1,27 +1,13 @@
 <script setup lang="ts">
-import { Photo, PhotoFallback, PhotoLoading } from '@/components/ui/Photo';
-import Logo from '../../brand/logo.vue';
-import { User } from 'lucide-vue-next';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { computed, defineComponent, h, onMounted, ref } from 'vue';
 import { Avatar } from '@/components/ui/Avatar';
-import { getUserCallback } from '@/lib/store';
 import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { User } from 'lucide-vue-next';
+import { computed, defineComponent, h } from 'vue';
+import Logo from '../../brand/logo.vue';
+import { useGetUser } from '@/composables/getUser';
 
-const user = ref<User | undefined>(undefined);
-const isLoading = ref(true);
-const isOffline = ref(false);
-
-onMounted(() => {
-    // fetch user
-    getUserCallback((_user, err) => {
-        isLoading.value = false;
-        user.value = _user;
-
-        if (err && err == "offline") isOffline.value = true;
-        else if (err) console.error(err);
-    }, { minified: false });
-})
+const { user, isLoading, isOffline } = useGetUser();
 
 // ===== CONSTANTS =====
 const USER_AVATAR_URL = "https://isdev.co/pfp.png";
@@ -92,11 +78,12 @@ const PlaceholderNav = defineComponent({
                     Offline
                 </Button>
                 <Skeleton v-else-if="isLoading" class="tw-w-14 tw-h-14 tw-rounded-full" />
-                <Button v-else-if="!user && !isLoading && !isOffline" variant="information" outline size="md" href="/login">
+                <Button v-else-if="!user && !isLoading && !isOffline" variant="information" outline size="md"
+                    href="/login">
                     <User class="tw-inline tw-mr-2" />
                     Login
                 </Button>
-                <UserAvatar v-else-if="user" />
+                <UserAvatar v-else-if="user" :src="user?.profilePicture" />
             </div>
         </div>
     </div>

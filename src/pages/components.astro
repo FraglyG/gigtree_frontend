@@ -1,14 +1,20 @@
 ---
 import { Button } from "@/components/ui/Button";
 import { GigCard } from "@/components/ui/GigCard";
+import { ProfileSnippet } from "@/components/ui/ProfileSnippet";
 import { Skeleton } from "@/components/ui/Skeleton";
 import MainLayout from "@/layouts/MainLayout.astro";
 ---
 
 <MainLayout>
 	<div>
-		<h2>Cards</h2>
-		<GigCard client:load name="Gig Card" description="Card used for job-listings" userId="0" thumbnailUrl="https://picsum.photos/500/300.webp?random=1" />
+		<h2 style="margin-bottom: 0;">Super Components</h2>
+		<p class="tw-text-sm tw-text-muted-foreground tw-mb-4">These are components that're made of other components</p>
+
+		<div class="tw-flex tw-flex-col tw-gap-8">
+			<GigCard client:load name="Gig Card" description="Card used for job-listings" userId="0" thumbnailUrl="https://picsum.photos/500/300.webp?random=1" />
+			<ProfileSnippet client:load />
+		</div>
 
 		<br />
 

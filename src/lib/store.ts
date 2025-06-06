@@ -107,6 +107,8 @@ export function getUserCallback(cb: GetUserCallback, options?: GetUserOptions) {
     CACHE.currentlyFetching.set(storagePath, [cb]);
 
     function callCallbackFuncs(user?: User, err?: string) {
+        console.log("[STORE] User fetched", user, "Error:", err);
+
         // embed helper functions
         if (user && !("update" in user)) user = {
             ...user,

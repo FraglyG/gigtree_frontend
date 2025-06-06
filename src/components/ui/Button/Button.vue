@@ -59,7 +59,7 @@ const variantClass = computed(() => {
 <template>
     <!-- remake .button in tw- tailwind classes -->
     <component :is="href ? 'a' : 'button'"
-        :class="['tw-rounded tw-font-semibold tw-transition-colors', variantClass, customClass]"
+        :class="['tw-rounded tw-font-semibold tw-transition-colors tw-flex tw-flex-row tw-items-center', variantClass, customClass]"
         :disabled="href ? undefined : disabled" :type="href ? undefined : type" :id="id" :href="href">
         <slot></slot>
     </component>

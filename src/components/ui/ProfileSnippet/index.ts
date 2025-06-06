@@ -1,0 +1,1 @@
+export { default as ProfileSnippet } from './ProfileSnippet.vue';

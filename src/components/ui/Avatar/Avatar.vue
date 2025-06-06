@@ -15,8 +15,8 @@ const props = withDefaults(defineProps<{
 
 const { src, alt, class: customClass, sizePx } = toRefs(props);
 
-const getSize = () => {
-    return `${sizePx.value}px`;
+const getSize = (offset: number = 0) => {
+    return `${sizePx.value + offset}px`;
 };
 
 </script>
@@ -24,10 +24,12 @@ const getSize = () => {
 <template>
     <Photo :src="src" :alt="alt" :class="customClass">
         <PhotoFallback>
-            <User :style="{ width: getSize(), height: getSize() }" />
+            <div :style="{ width: getSize(), height: getSize() }" class="tw-rounded-full tw-bg-input tw-p-2 tw-border tw-border-border">
+                <User class="tw-w-full tw-h-full" />
+            </div>
         </PhotoFallback>
         <PhotoLoading>
-            <Skeleton :style="{ width: getSize(), height: getSize() }" />
+            <Skeleton :style="{ width: getSize(), height: getSize() }" container-class="tw-rounded-full" />
         </PhotoLoading>
     </Photo>
 </template>
