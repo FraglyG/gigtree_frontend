@@ -1,8 +1,8 @@
-import { getUserCallback } from "@/lib/store";
+import { getUserCallback, type UserController } from "@/lib/store";
 import { onMounted, ref } from "vue";
 
 export function useGetUser() {
-    const user = ref<User | undefined>(undefined);
+    const user = ref<UserController | undefined>(undefined);
     const isLoading = ref(true);
     const isOffline = ref(false);
 
@@ -14,7 +14,7 @@ export function useGetUser() {
 
             if (err && err == "offline") isOffline.value = true;
             else if (err) console.error(err);
-        }, { minified: false });
+        }, { minified: false, keepAlive: true });
     })
 
     return {
