@@ -2,6 +2,7 @@
 import { Card, CardThumbnail, CardHeader, CardFooter, CardBody } from '@/components/ui/Card';
 import { Photo, PhotoFallback, PhotoLoading } from '../Photo';
 import { Skeleton } from '../Skeleton';
+import ImageLoadFail from "@/assets/image_load_fail.svg";
 
 defineProps<{
     userId: string;
@@ -14,9 +15,9 @@ defineProps<{
 <template>
     <Card class="tw-w-[230px]">
         <CardThumbnail v-if="thumbnailUrl">
-            <Photo skeleton :src="thumbnailUrl" alt="Gig Thumbnail">
+            <Photo skeleton :src="thumbnailUrl" :fallbackSrc="ImageLoadFail.src" alt="Gig Thumbnail">
                 <PhotoLoading>
-                    <Skeleton containerClass="tw-w-full tw-h-[100px]" />
+                    <Skeleton class="tw-w-full tw-h-[100px]" />
                 </PhotoLoading>
             </Photo>
         </CardThumbnail>

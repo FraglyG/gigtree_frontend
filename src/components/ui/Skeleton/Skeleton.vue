@@ -15,8 +15,8 @@ const customClass = toRefs(props).class;
 </script>
 
 <template>
-    <div :class="['tw-bg-black tw-overflow-hidden', customClass, containerClass]">
-        <div :class="['tw-animate-pulse tw-bg-gray-800', customClass]"></div>
+    <div :class="['tw-bg-black tw-overflow-hidden', customClass]">
+        <div :class="['tw-animate-pulse tw-bg-gray-800', 'tw-w-full tw-h-full']"></div>
     </div>
 </template>
 

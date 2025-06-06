@@ -21,7 +21,7 @@ const { user, isLoading, isOffline } = useGetUser();
                 `${user.firstName}
                 ${user.lastName}` : `Guest User` }}</p>
 
-            <Skeleton v-if="isLoading" class="tw-w-20 tw-h-4 tw-rounded-md" container-class="tw-mt-2" />
+            <Skeleton v-if="isLoading" class="tw-w-20 tw-h-4 tw-rounded-md tw-mt-2" />
             <p v-else-if="isOffline" class="tw-text-sm tw-text-secondary">@unknown</p>
             <p v-else-if="!isLoading && !isOffline" class="tw-text-sm tw-text-secondary">{{ user ?
                 `@${user.username}` : "@guest" }}</p>

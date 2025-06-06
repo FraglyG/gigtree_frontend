@@ -29,7 +29,7 @@ const getSize = (offset: number = 0) => {
             </div>
         </PhotoFallback>
         <PhotoLoading>
-            <Skeleton :style="{ width: getSize(), height: getSize() }" container-class="tw-rounded-full" />
+            <Skeleton :style="{ width: getSize(), height: getSize() }" class="tw-rounded-full" />
         </PhotoLoading>
     </Photo>
 </template>
