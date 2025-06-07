@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import path from 'path';
 
 import vue from '@astrojs/vue';
 import tailwind from '@astrojs/tailwind';
@@ -8,6 +9,15 @@ import tailwind from '@astrojs/tailwind';
 export default defineConfig({
   server: {
     port: 80,
+  },
+  vite: {
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+        "@tests": path.resolve(__dirname, "./tests")
+      }
+    }
+
   },
   integrations: [vue(), tailwind({ applyBaseStyles: false })],
   env: {
