@@ -96,7 +96,7 @@ async function handleEditSave() {
         }
 
         console.log('Listing updated successfully');
-        listing.value = result.data as Listing;
+        listing.value = result.listing as Listing;
         isEditing.value = false;
     } catch (error) {
         console.error("Error updating listing:", error);

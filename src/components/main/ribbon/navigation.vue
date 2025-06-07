@@ -9,7 +9,7 @@ const { user, isLoading, isOffline } = useGetUser();
 const navs = computed(() => [
     { name: 'Home', path: '/' },
     (user.value && { name: 'Dashboard', path: '/dashboard' } || { name: 'Register', path: '/register' }),
-    (user.value && { name: 'Profile', path: '/profile' } || { name: 'Login', path: '/login' }),
+    (user.value && { name: 'Inbox', path: '/inbox' } || { name: 'Login', path: '/login' }),
 ].filter(nav => nav !== undefined));
 
 </script>
