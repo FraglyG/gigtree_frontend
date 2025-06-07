@@ -13,7 +13,7 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        "@": "./src"
+        "@": path.join(process.cwd(), 'src'),
       }
     }
   },
