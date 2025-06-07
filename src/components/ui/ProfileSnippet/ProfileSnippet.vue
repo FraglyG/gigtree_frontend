@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGetUser } from '@/composables/getUser';
-import { Avatar } from '@/components/ui/Avatar';
-import { Skeleton } from '@/components/ui/Skeleton';
+import { Avatar } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const { user, isLoading, isOffline } = useGetUser();
 

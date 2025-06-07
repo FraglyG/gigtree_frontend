@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRandomGigCardData } from '@/composables/random_gigcard_data';
-import { GigCard } from './ui/GigCard';
-import { Card, CardThumbnail, CardHeader, CardFooter, CardBody } from '@/components/ui/Card';
+import { GigCard } from './ui/gigcard';
+import { Card, CardThumbnail, CardHeader, CardFooter, CardBody } from '@/components/ui/card';
 
 const { generateDetails } = useRandomGigCardData();
 const CARDS_TO_GENERATE = 20;

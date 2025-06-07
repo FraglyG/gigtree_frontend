@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { Card, CardHeader, CardBody, CardThumbnail, CardFooter } from '@/components/ui/Card';
-import { Button } from "@/components/ui/Button";
+import { Card, CardHeader, CardBody, CardThumbnail, CardFooter } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
 import { useGetUser } from '@/composables/getUser';
 import { computed, onMounted, ref, watch } from 'vue';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { TextArea } from '@/components/ui/TextArea';
+import { Skeleton } from '@/components/ui/skeleton';
+import { TextArea } from '@/components/ui/textarea';
 import { ImagePlus } from 'lucide-vue-next';
-import { GigCard } from '@/components/ui/GigCard';
+import { GigCard } from '@/components/ui/gigcard';
 import UserListing from './UserListing.vue';
 import { api } from '@/lib/api';
-import Photo from '@/components/ui/Photo/Photo.vue';
-import { PhotoLoading, PhotoOverlay } from '@/components/ui/Photo';
+import Photo from '@/components/ui/photo/Photo.vue';
+import { PhotoLoading, PhotoOverlay } from '@/components/ui/photo';
 import { useFileStorage } from '@/composables/fileStorage';
 
 const { triggerUpload } = useFileStorage();

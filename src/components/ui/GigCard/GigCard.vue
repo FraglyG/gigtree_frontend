@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { Card, CardThumbnail, CardHeader, CardFooter, CardBody } from '@/components/ui/Card';
-import { Photo, PhotoFallback, PhotoLoading } from '../Photo';
-import { Skeleton } from '../Skeleton';
+import { Card, CardThumbnail, CardHeader, CardFooter, CardBody } from '@/components/ui/card';
+import { Photo, PhotoFallback, PhotoLoading } from '../photo';
+import { Skeleton } from '../skeleton';
 import ImageLoadFail from "@/assets/image_load_fail.svg";
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { BriefcaseBusiness, User } from 'lucide-vue-next';
 import { api } from '@/lib/api';
 import { useMessenger } from '@/composables/messanger';

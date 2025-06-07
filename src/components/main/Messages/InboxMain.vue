@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import ChannelList from './ChannelList.vue';
 import ChatWindow from './ChatWindow.vue';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { MessageCircle } from 'lucide-vue-next';
 import { useMessenger, type ChannelData } from '@/composables/messanger';
 

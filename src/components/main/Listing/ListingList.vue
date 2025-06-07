@@ -2,10 +2,10 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { api } from '@/lib/api';
 import UserListing from './UserListing.vue';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { Card, CardBody } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardBody } from '@/components/ui/card';
 import { Search, Filter, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 
 interface ListingWithOwner extends Listing {

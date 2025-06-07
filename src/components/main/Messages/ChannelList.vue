@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useMessenger, type ChannelData } from '@/composables/messanger';
-import { Avatar } from '@/components/ui/Avatar';
-import { Card } from '@/components/ui/Card';
-import { Skeleton } from '@/components/ui/Skeleton';
+import { Avatar } from '@/components/ui/avatar';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { MessageCircle, Search } from 'lucide-vue-next';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 
 const props = defineProps<{
     selectedChannelId?: string;

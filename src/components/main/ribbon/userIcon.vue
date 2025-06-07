@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
-import { Skeleton } from '@/components/ui/Skeleton';
+import { Avatar } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useGetUser } from '@/composables/getUser';
 import { User } from 'lucide-vue-next';
 

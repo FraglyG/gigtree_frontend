@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { User } from 'lucide-vue-next';
-import { Photo, PhotoFallback, PhotoLoading } from '../Photo';
-import { Skeleton } from '../Skeleton';
+import { Photo, PhotoFallback, PhotoLoading } from '../photo';
+import { Skeleton } from '../skeleton';
 import { toRefs } from 'vue';
 
 const props = withDefaults(defineProps<{

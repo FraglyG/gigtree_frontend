@@ -3,9 +3,9 @@ import { ref, onMounted, nextTick, computed, watch } from 'vue';
 import { useMessenger, type ChannelData, type MessageData } from '@/composables/messanger';
 import { useGetUser } from '@/composables/getUser';
 import Message from './Message.vue';
-import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
-import { Skeleton } from '@/components/ui/Skeleton';
+import { Avatar } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Send, MoreVertical } from 'lucide-vue-next';
 
 interface EnhancedMessage extends MessageData {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { GigCard } from '@/components/ui/GigCard';
+import { GigCard } from '@/components/ui/gigcard';
 import type { UserController } from '@/lib/store';
 
 const props = defineProps<{

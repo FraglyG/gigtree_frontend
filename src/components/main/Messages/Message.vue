@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Avatar } from '@/components/ui/Avatar';
+import { Avatar } from '@/components/ui/avatar';
 
 const props = defineProps<{
     authorPfp?: string;

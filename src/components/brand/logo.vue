@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Photo, PhotoLoading } from '../ui/Photo';
-import { Skeleton } from '../ui/Skeleton';
+import { Photo, PhotoLoading } from '../ui/photo';
+import { Skeleton } from '../ui/skeleton';
 
 defineProps<{
     hideName?: boolean;
