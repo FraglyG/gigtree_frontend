@@ -10,7 +10,7 @@ const { class: customClass } = toRefs(props);
 </script>
 
 <template>
-    <div class="card" :class="[customClass]">
+    <div :class="['card', customClass]">
         <slot></slot>
     </div>
 </template>
@@ -19,6 +19,7 @@ const { class: customClass } = toRefs(props);
 .card {
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
     overflow: hidden;

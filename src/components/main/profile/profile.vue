@@ -9,19 +9,20 @@ import { BriefcaseBusiness, ImagePlus } from 'lucide-vue-next';
 import { TextArea } from '@/components/ui/TextArea';
 import { api } from '@/lib/api';
 import { Input } from '@/components/ui/Input';
-import StorageApi, { StorageApiError } from '@/composables/fileStorage';
+import StorageApi, { StorageApiError, useFileStorage } from '@/composables/fileStorage';
 
 
 const props = withDefaults(defineProps<{
     canEdit?: boolean;
+    class?: string;
 }>(), {
     canEdit: false
 });
 
 const refs = toRefs(props);
 
-const storageApi = new StorageApi(import.meta.env.PUBLIC_CDN_URL);
 const { user, isLoading, isOffline } = useGetUser();
+const { triggerUpload } = useFileStorage();
 
 const isEditable = computed(() => !isLoading.value && !isOffline.value && user.value && refs.canEdit.value);
 const isEditing = ref(false);
@@ -113,23 +114,16 @@ async function handleProfilePictureUpdateClick() {
         return;
     }
 
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.onchange = async (event: Event) => {
-        const target = event.target as HTMLInputElement;
-        if (!target.files || target.files.length <= 0) return;
-
-        const file = target.files[0];
-        try {
-            const result = await storageApi.upload(file);
-            editableProfile.value!.profilePicture = result.url;
-        } catch (error) {
-            if (error instanceof StorageApiError) displayErrorMessage(`Upload failed: ${error.message}`, 10_000);
-            else displayErrorMessage('An unexpected error occurred while uploading the profile picture.', 10_000);
+    triggerUpload((res, err) => {
+        if (err) {
+            console.error('Error uploading profile picture:', err);
+            displayErrorMessage(`Failed to upload profile picture: ${err.error}`);
+            return;
         }
-    };
-    fileInput.click();
+        if (!res) return;
+
+        editableProfile.value!.profilePicture = res.url;
+    });
 }
 
 watch(user, () => {
@@ -141,7 +135,7 @@ watch(user, () => {
 </script>
 
 <template>
-    <div>
+    <div :class="[refs.class]">
         <div v-if="isEditable || (refs.canEdit.value && isLoading)">
             <div class="tw-flex tw-flex-row tw-justify-between tw-gap-2">
                 <div>
@@ -176,7 +170,8 @@ watch(user, () => {
 
             <!-- EDITABLE SECOND ROW -->
             <div v-if="isEditable && isEditing" class="tw-w-full">
-                <div class="tw-relative tw-flex tw-flex-row tw-justify-between tw-flex-wrap tw-gap-2 tw-items-center tw-max-w-96 tw-mb-4">
+                <div
+                    class="tw-relative tw-flex tw-flex-row tw-justify-between tw-flex-wrap tw-gap-2 tw-items-center tw-max-w-96 tw-mb-4">
                     <!-- First Name -->
                     <Input v-if="editableProfile" v-model="editableProfile.firstName" class="tw-w-[45%]"
                         placeholder="Enter your name" :disabled="!isEditable" />

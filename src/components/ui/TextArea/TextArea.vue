@@ -7,12 +7,14 @@ const props = withDefaults(defineProps<{
     rows?: number;
     disabled?: boolean;
     readonly?: boolean;
+    resizable?: boolean;
 }>(), {
     modelValue: '',
     placeholder: 'Type here...',
     rows: 3,
     disabled: false,
-    readonly: false
+    readonly: false,
+    resizable: true
 })
 
 const emit = defineEmits<{
@@ -30,8 +32,10 @@ const handleInput = (event: Event) => {
 
 <template>
     <textarea :value="modelValue" @input="handleInput" :placeholder="placeholder" :rows="rows" :disabled="disabled"
-        :readonly="readonly"
-        class="tw-w-full tw-p-2 tw-text-sm tw-transition-colors focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-ring-offset-2" />
+        :readonly="readonly" :class="[
+            'tw-w-full tw-p-2 tw-text-sm tw-transition-colors focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-ring-offset-2',
+            { 'tw-resize-none': !resizable }
+        ]" />
 </template>
 
 <style scoped>
@@ -44,5 +48,22 @@ textarea {
 
 textarea:focus {
     box-shadow: 0 0 0 2px hsl(var(--ring));
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--primary) / 0.8);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--primary));
 }
 </style>

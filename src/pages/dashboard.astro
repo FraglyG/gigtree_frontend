@@ -3,56 +3,57 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Card, CardBody } from "@/components/ui/Card";
 import MainProfile from "@/components/main/profile/profile.vue";
 import MainLayout from "@/layouts/MainLayout.astro";
+import PostEditor from "@/components/main/Listing/ListingEditor.vue";
 ---
 
 <MainLayout>
 	<div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full tw-h-full">
-		<div class="head_container">
-			<Card class="main_container">
-				<CardBody class="container_body">
-					<MainProfile client:load />
+		<div class="profile_container">
+			<Card class="profile_main_container">
+				<CardBody class="profile_main_container_body">
+					<MainProfile canEdit={true} class="tw-h-full" client:load />
 				</CardBody>
 			</Card>
 
-			<div class="seconary_container tw-bg-muted tw-rounded tw-w-full tw-h-[300px]">
-
-            </div>
+			<div class="profile_seconary_container tw-bg-muted/50 tw-rounded tw-w-full">
+				<PostEditor client:load />
+			</div>
 		</div>
 	</div>
 </MainLayout>
 
 <style scoped>
-	.head_container {
+	.profile_container {
 		width: 100%;
 		height: 100%;
 
+		min-height: 600px;
 		max-width: 1200px;
 
 		display: flex;
 		flex-direction: row;
-        justify-content: space-around;
-        gap: 30px;
+		justify-content: space-around;
+		gap: 30px;
 	}
 
-	.main_container {
+	.profile_main_container {
+		min-height: inherit;
 		width: 50%;
 		height: 100%;
+	}
+
+	.profile_seconary_container {
+		min-height: inherit;
+		height: 100%;
+		width: 50%;
+		max-width: 700px;
 
 		display: flex;
 		justify-content: center;
 		align-items: center;
 	}
 
-    .seconary_container {
-        width: 50%;
-        max-width: 700px;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-	.container_body {
+	.profile_main_container_body {
 		width: 100%;
 		height: 100%;
 		padding: 20px 40px;
@@ -60,14 +61,14 @@ import MainLayout from "@/layouts/MainLayout.astro";
 	}
 
 	@media screen and (max-width: 640px) {
-		.main_container {
+		.profile_main_container {
 			width: 100%;
 			height: 100%;
 			max-width: 100%;
 			max-height: fit-content;
 		}
 
-		.container_body {
+		.profile_main_container_body {
 			padding: 20px;
 		}
 	}

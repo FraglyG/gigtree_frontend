@@ -21,6 +21,10 @@ const variantList = {
     muted: {
         base: "tw-bg-muted hover:tw-bg-muted/90",
         outline: "tw-bg-zinc-800/20 hover:tw-bg-muted/90 tw-border tw-border-solid tw-border-muted tw-text-muted hover:tw-text-white",
+    },
+    input: {
+        base: "tw-bg-input hover:tw-bg-input/90",
+        outline: "tw-bg-zinc-800/20 hover:tw-bg-input/90 tw-border tw-border-solid tw-border-input tw-text-input hover:tw-text-white",
     }
 }
 

@@ -51,7 +51,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="photo-container" :class="[{ 'is-loading': isLoading, 'has-error': imageError }, customClass]">
+    <div :class="['photo-container', { 'is-loading': isLoading, 'has-error': imageError }, customClass]">
         <img v-if="src && !imageError" ref="imgRef" :src="src" :alt="alt" class="photo"
             :class="{ 'tw-opacity-0': !imageLoaded, 'tw-opacity-100': imageLoaded, 'tw-absolute': !imageLoaded }"
             @load="handleImageLoaded" @error="handleImageError" />

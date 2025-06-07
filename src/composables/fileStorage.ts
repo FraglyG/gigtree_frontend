@@ -49,3 +49,31 @@ export class StorageApi {
 }
 
 export default StorageApi;
+
+export function useFileStorage() {
+    const storageApi = new StorageApi(import.meta.env.PUBLIC_CDN_URL);
+
+    return {
+        /** Trigger a file-upload input for the user */
+        triggerUpload: async (cb?: (res?: UploadResponse, err?: UploadError) => any) => {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.onchange = async (event: Event) => {
+                const target = event.target as HTMLInputElement;
+                if (!target.files || target.files.length <= 0) return;
+
+                const file = target.files[0];
+                try {
+                    const result = await storageApi.upload(file);
+                    if (cb) cb(result, undefined);
+                } catch (error) {
+                    if (!cb) return; // can't handle error without callback
+                    if (error instanceof StorageApiError) cb(undefined, { error: error.message });
+                    else return cb(undefined, { error: 'An unexpected error occurred' });
+                }
+            };
+            fileInput.click();
+        }
+    }
+}

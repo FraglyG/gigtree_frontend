@@ -8,12 +8,12 @@ defineProps<{
     userId: string;
     name: string;
     description: string;
-    thumbnailUrl: string;
+    thumbnailUrl?: string;
 }>();
 </script>
 
 <template>
-    <Card class="tw-w-[230px]">
+    <Card class="tw-w-[240px]">
         <CardThumbnail v-if="thumbnailUrl">
             <Photo skeleton :src="thumbnailUrl" :fallbackSrc="ImageLoadFail.src" alt="Gig Thumbnail">
                 <PhotoLoading>

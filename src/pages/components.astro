@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { GigCard } from "@/components/ui/GigCard";
 import { ProfileSnippet } from "@/components/ui/ProfileSnippet";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { Photo, PhotoLoading, PhotoOverlay } from "@/components/ui/Photo";
 import MainLayout from "@/layouts/MainLayout.astro";
 ---
 
@@ -41,6 +42,20 @@ import MainLayout from "@/layouts/MainLayout.astro";
 				</div>
 			))
 		}
+		<br />
+
+		<h2>Photo Overlay</h2>
+		<p class="tw-text-sm tw-text-muted-foreground tw-mb-4">Photo with overlay content (for example, an edit button in the image:)</p>
+		<Photo client:load class="tw-w-80 tw-h-60 tw-rounded-lg" src="https://picsum.photos/400/300.webp?random=2" alt="Sample photo">
+			<PhotoLoading>
+				<Skeleton class="tw-w-full tw-h-full tw-rounded" />
+			</PhotoLoading>
+			<PhotoOverlay>
+				<div class="tw-w-full tw-h-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2">
+					<Button variant="primary" size="sm"> Edit </Button>
+				</div>
+			</PhotoOverlay>
+		</Photo>
 
 		<br />
 
