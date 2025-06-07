@@ -31,7 +31,7 @@ const handleInput = (event: Event) => {
 <template>
     <input :value="modelValue" @input="handleInput" :placeholder="placeholder" :type="type" :disabled="disabled"
         :readonly="readonly"
-        class="tw-w-full tw-p-2 tw-text-sm tw-transition-colors focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-ring-offset-2" />
+        class="tw-p-2 tw-text-sm tw-transition-colors focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-ring-offset-2" />
 </template>
 
 <style scoped>

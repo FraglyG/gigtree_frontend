@@ -5,7 +5,7 @@ import Skeleton from '@/components/ui/Skeleton/Skeleton.vue';
 import { useGetUser } from '@/composables/getUser';
 import { computed, ref, toRefs, watch } from 'vue';
 import { Button } from '@/components/ui/Button';
-import { BriefcaseBusiness } from 'lucide-vue-next';
+import { BriefcaseBusiness, ImagePlus } from 'lucide-vue-next';
 import { TextArea } from '@/components/ui/TextArea';
 import { api } from '@/lib/api';
 import { Input } from '@/components/ui/Input';
@@ -175,21 +175,27 @@ watch(user, () => {
             </div>
 
             <!-- EDITABLE SECOND ROW -->
-            <div v-if="isEditable && isEditing"
-                class="tw-flex tw-flex-row tw-justify-between tw-flex-wrap tw-gap-2 tw-items-center tw-max-w-96">
-                <!-- First Name -->
-                <Input v-if="editableProfile" v-model="editableProfile.firstName" class="tw-w-[45%]"
-                    placeholder="Enter your name" :disabled="!isEditable" />
-                <Input v-else-if="!editableProfile" class="tw-w-[45%]" readonly disabled placeholder="Not Logged In" />
+            <div v-if="isEditable && isEditing" class="tw-w-full">
+                <div class="tw-relative tw-flex tw-flex-row tw-justify-between tw-flex-wrap tw-gap-2 tw-items-center tw-max-w-96 tw-mb-4">
+                    <!-- First Name -->
+                    <Input v-if="editableProfile" v-model="editableProfile.firstName" class="tw-w-[45%]"
+                        placeholder="Enter your name" :disabled="!isEditable" />
+                    <Input v-else-if="!editableProfile" class="tw-w-[45%]" readonly disabled
+                        placeholder="Not Logged In" />
 
-                <!-- Last Name -->
-                <Input v-if="editableProfile" v-model="editableProfile.lastName" class="tw-w-[45%]"
-                    placeholder="Enter your last name" :disabled="!isEditable" />
-                <Input v-else-if="!editableProfile" class="tw-w-[45%]" readonly disabled placeholder="Not Logged In" />
+                    <!-- Last Name -->
+                    <Input v-if="editableProfile" v-model="editableProfile.lastName" class="tw-w-[45%]"
+                        placeholder="Enter your last name" :disabled="!isEditable" />
+                    <Input v-else-if="!editableProfile" class="tw-w-[45%]" readonly disabled
+                        placeholder="Not Logged In" />
+                </div>
 
                 <!-- Update Profile Picture -->
                 <Button v-if="editableProfile" variant="secondary" size="sm" @click="handleProfilePictureUpdateClick">
-                    Update Profile Picture
+                    <div class="tw-flex tw-flex-row tw-items-center">
+                        <ImagePlus class="tw-w-4 tw-h-4 tw-mr-2" />
+                        Update Profile Pic
+                    </div>
                 </Button>
                 <Button v-else-if="!editableProfile" variant="secondary" size="sm" disabled>
                     Update Profile Picture
