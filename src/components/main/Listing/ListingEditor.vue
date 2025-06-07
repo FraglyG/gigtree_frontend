@@ -144,10 +144,10 @@ async function handleImageButtonClick() {
                     <Button size="sm" variant="primary" @click="handleEditSave">Save</Button>
                 </div>
                 <div v-if="isEditable && !isEditing" class="tw-flex tw-flex-row tw-items-center tw-gap-2">
-                    <Button size="sm" variant="secondary" @click="handleEditStart">Edit</Button>
+                    <Button size="sm" variant="secondary" @click="handleEditStart">{{ listing ? 'Edit' : 'Create'}}</Button>
                 </div>
                 <div v-else-if="!isEditable && isLoading">
-                    <Skeleton class="tw-w-20 tw-h-8 tw-rounded" />
+                    <Skeleton class="tw-w-20 tw-h-6 tw-rounded" />
                 </div>
             </CardBody>
         </Card>
@@ -167,7 +167,7 @@ async function handleImageButtonClick() {
                             variant="input">
                             <div class="tw-flex tw-flex-row tw-items-center tw-justify-center tw-gap-2">
                                 <ImagePlus class="tw-text-muted-foreground" />
-                                <span class="tw-text-muted-foreground">Set Profile Picture</span>
+                                <span class="tw-text-muted-foreground">Set Thumbnail</span>
                             </div>
                         </Button>
                     </PhotoOverlay>
@@ -211,7 +211,7 @@ async function handleImageButtonClick() {
         <Card v-else-if="user && !listing && !isEditing">
             <CardBody class="tw-p-4">
                 <p class="tw-text-muted-foreground tw-font-semibold tw-text-md">No Job Listing.. Yet</p>
-                <p class="tw-text-muted-foreground tw-text-sm">Create one by clicking 'Edit' above.</p>
+                <p class="tw-text-muted-foreground tw-text-sm">Create one by clicking 'Create' above.</p>
             </CardBody>
         </Card>
         <Card v-else-if="isLoading">

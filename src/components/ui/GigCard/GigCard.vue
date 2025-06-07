@@ -10,16 +10,30 @@ defineProps<{
     description: string;
     thumbnailUrl?: string;
 }>();
+
+function createColorFromUsername(username: string): string {
+    const hash = Array.from(username).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hue = hash % 360;
+    return `hsl(${hue}, 70%, 80%)`;
+}
 </script>
 
 <template>
     <Card class="tw-w-[240px]">
-        <CardThumbnail v-if="thumbnailUrl">
-            <Photo skeleton :src="thumbnailUrl" :fallbackSrc="ImageLoadFail.src" alt="Gig Thumbnail">
+        <CardThumbnail>
+            <Photo v-if="thumbnailUrl" skeleton :src="thumbnailUrl" :fallbackSrc="ImageLoadFail.src"
+                alt="Gig Thumbnail">
                 <PhotoLoading>
                     <Skeleton class="tw-w-full tw-h-[100px]" />
                 </PhotoLoading>
             </Photo>
+            <div v-else class="tw-w-full tw-h-[100px] tw-bg-muted tw-rounded">
+                <!-- Random color based on user's username as seed -->
+                <div class="tw-w-full tw-h-full tw-flex tw-items-center tw-justify-center"
+                    :style="{ backgroundColor: createColorFromUsername(name) }">
+                    <span class="tw-text-muted-foreground tw-text-lg">{{ name.split(" ").map(c => c.charAt(0).toUpperCase()).join("") }}</span>
+                </div>
+            </div>
         </CardThumbnail>
 
         <CardHeader class="tw-p-5 tw-pt-2">

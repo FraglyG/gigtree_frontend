@@ -4,6 +4,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 import MainProfile from "@/components/main/profile/profile.vue";
 import MainLayout from "@/layouts/MainLayout.astro";
 import PostEditor from "@/components/main/Listing/ListingEditor.vue";
+import { FileUser } from "lucide-vue-next";
 ---
 
 <MainLayout>
@@ -15,8 +16,16 @@ import PostEditor from "@/components/main/Listing/ListingEditor.vue";
 				</CardBody>
 			</Card>
 
-			<div class="profile_seconary_container tw-bg-muted/50 tw-rounded tw-w-full">
-				<PostEditor client:load />
+			<div class="profile_seconary_container tw-bg-muted/50 tw-rounded tw-w-full tw-p-8">
+				<div class="tw-flex tw-flex-row tw-align-middle tw-gap-2 tw-mb-1">
+					<FileUser class="tw-w-6 tw-h-6 tw-mt-0.5" />
+					<h2 class="tw-font-semibold tw-text-lg">Looking for work?</h2>
+				</div>
+				<h3 class="tw-text-muted-foreground">Manage your job-listing here.</h3>
+				<br />
+				<div class="tw-w-full tw-flex tw-justify-center">
+					<PostEditor client:load />
+				</div>
 			</div>
 		</div>
 	</div>
@@ -47,10 +56,6 @@ import PostEditor from "@/components/main/Listing/ListingEditor.vue";
 		height: 100%;
 		width: 50%;
 		max-width: 700px;
-
-		display: flex;
-		justify-content: center;
-		align-items: center;
 	}
 
 	.profile_main_container_body {
