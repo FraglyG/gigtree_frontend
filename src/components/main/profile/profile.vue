@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import Avatar from '@/components/ui/avatar/Avatar.vue';
-import { ProfileSnippet } from '@/components/ui/profilesnippet';
-import Skeleton from '@/components/ui/skeleton/Skeleton.vue';
+import Avatar from '@/components/ui/Avatar/Avatar.vue';
+import { ProfileSnippet } from '@/components/ui/ProfileSnippet';
+import Skeleton from '@/components/ui/Skeleton/Skeleton.vue';
 import { useGetUser } from '@/composables/getUser';
 import { computed, ref, toRefs, watch } from 'vue';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { BriefcaseBusiness, ImagePlus } from 'lucide-vue-next';
-import { TextArea } from '@/components/ui/textarea';
+import { TextArea } from '@/components/ui/TextArea';
 import { api } from '@/lib/api';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/Input';
 import StorageApi, { StorageApiError, useFileStorage } from '@/composables/fileStorage';
 
 
