@@ -9,6 +9,8 @@ import { BriefcaseBusiness } from 'lucide-vue-next';
 import { TextArea } from '@/components/ui/TextArea';
 import { api } from '@/lib/api';
 import { Input } from '@/components/ui/Input';
+import StorageApi, { StorageApiError } from '@/composables/fileStorage';
+
 
 const props = withDefaults(defineProps<{
     canEdit?: boolean;
@@ -18,6 +20,7 @@ const props = withDefaults(defineProps<{
 
 const refs = toRefs(props);
 
+const storageApi = new StorageApi(import.meta.env.PUBLIC_CDN_URL);
 const { user, isLoading, isOffline } = useGetUser();
 
 const isEditable = computed(() => !isLoading.value && !isOffline.value && user.value && refs.canEdit.value);
@@ -91,6 +94,44 @@ async function handleSaveEdit() {
     isEditing.value = false;
 }
 
+// async function handleFileUpload(file: File) {
+//     try {
+//         const result = await storageApi.upload(file);
+//         console.log('Upload successful:', result.url);
+//         return result;
+//     } catch (error) {
+//         if (error instanceof StorageApiError) {
+//             console.error('Upload failed:', error.message, error.statusCode);
+//         }
+//         throw error;
+//     }
+// }
+
+async function handleProfilePictureUpdateClick() {
+    if (!editableProfile.value) {
+        displayErrorMessage('Please log in to update your profile picture.');
+        return;
+    }
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = async (event: Event) => {
+        const target = event.target as HTMLInputElement;
+        if (!target.files || target.files.length <= 0) return;
+
+        const file = target.files[0];
+        try {
+            const result = await storageApi.upload(file);
+            editableProfile.value!.profilePicture = result.url;
+        } catch (error) {
+            if (error instanceof StorageApiError) displayErrorMessage(`Upload failed: ${error.message}`, 10_000);
+            else displayErrorMessage('An unexpected error occurred while uploading the profile picture.', 10_000);
+        }
+    };
+    fileInput.click();
+}
+
 watch(user, () => {
     console.log('User changed:', user.value);
     if (user.value) editableProfile.value = getEditableProfile();
@@ -145,6 +186,14 @@ watch(user, () => {
                 <Input v-if="editableProfile" v-model="editableProfile.lastName" class="tw-w-[45%]"
                     placeholder="Enter your last name" :disabled="!isEditable" />
                 <Input v-else-if="!editableProfile" class="tw-w-[45%]" readonly disabled placeholder="Not Logged In" />
+
+                <!-- Update Profile Picture -->
+                <Button v-if="editableProfile" variant="secondary" size="sm" @click="handleProfilePictureUpdateClick">
+                    Update Profile Picture
+                </Button>
+                <Button v-else-if="!editableProfile" variant="secondary" size="sm" disabled>
+                    Update Profile Picture
+                </Button>
             </div>
 
             <br />

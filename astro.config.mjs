@@ -16,6 +16,11 @@ export default defineConfig({
         type: 'string',
         context: 'client',
         access: 'public',
+      },
+      PUBLIC_CDN_URL: {
+        type: 'string',
+        context: 'client',
+        access: 'public',
       }
     }
   }
