@@ -1,0 +1,26 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import InboxMain from "@/components/main/Messages/InboxMain.vue";
+---
+
+<MainLayout>
+	<div class="inbox-container">
+		<InboxMain client:load />
+	</div>
+</MainLayout>
+
+<style>
+	.inbox-container {
+		height: calc(80svh - 80px); 
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+	}
+	
+	.inbox-container > * {
+		flex: 1;
+		min-height: 0;
+	}
+</style>
+
+

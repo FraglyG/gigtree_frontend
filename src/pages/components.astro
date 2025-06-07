@@ -5,6 +5,7 @@ import { ProfileSnippet } from "@/components/ui/ProfileSnippet";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Photo, PhotoLoading, PhotoOverlay } from "@/components/ui/Photo";
 import MainLayout from "@/layouts/MainLayout.astro";
+import Message from "@/components/main/Messages/Message.vue";
 ---
 
 <MainLayout>
@@ -15,6 +16,7 @@ import MainLayout from "@/layouts/MainLayout.astro";
 		<div class="tw-flex tw-flex-col tw-gap-8">
 			<GigCard client:load name="Gig Card" description="Card used for job-listings" userId="0" thumbnailUrl="https://picsum.photos/500/300.webp?random=1" />
 			<ProfileSnippet client:load />
+			<Message client:load authorPfp="https://picsum.photos/200/200.webp?random=1" authorName="John Doe" content="This is a message!" timestamp={new Date()} />
 		</div>
 
 		<br />

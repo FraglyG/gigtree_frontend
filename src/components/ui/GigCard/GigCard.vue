@@ -3,8 +3,12 @@ import { Card, CardThumbnail, CardHeader, CardFooter, CardBody } from '@/compone
 import { Photo, PhotoFallback, PhotoLoading } from '../Photo';
 import { Skeleton } from '../Skeleton';
 import ImageLoadFail from "@/assets/image_load_fail.svg";
+import { Button } from '@/components/ui/Button';
+import { BriefcaseBusiness, User } from 'lucide-vue-next';
+import { api } from '@/lib/api';
+import { useMessenger } from '@/composables/messanger';
 
-defineProps<{
+const props = defineProps<{
     userId: string;
     name: string;
     description: string;
@@ -15,6 +19,17 @@ function createColorFromUsername(username: string): string {
     const hash = Array.from(username).reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const hue = hash % 360;
     return `hsl(${hue}, 70%, 80%)`;
+}
+
+const { createChannel } = useMessenger();
+
+async function handleHireClick() {
+    const result = await createChannel(props.userId);
+    if (result && result.channel) {
+        window.location.href = `${window.location.origin}/inbox?channel=${result.channel.channelId}`;
+    } else {
+        console.error('Failed to create or navigate to channel');
+    }
 }
 </script>
 
@@ -31,7 +46,8 @@ function createColorFromUsername(username: string): string {
                 <!-- Random color based on user's username as seed -->
                 <div class="tw-w-full tw-h-full tw-flex tw-items-center tw-justify-center"
                     :style="{ backgroundColor: createColorFromUsername(name) }">
-                    <span class="tw-text-muted-foreground tw-text-lg">{{ name.split(" ").map(c => c.charAt(0).toUpperCase()).join("") }}</span>
+                    <span class="tw-text-muted-foreground tw-text-lg">{{name.split(" ").map(c =>
+                        c.charAt(0).toUpperCase()).join("")}}</span>
                 </div>
             </div>
         </CardThumbnail>
@@ -49,8 +65,14 @@ function createColorFromUsername(username: string): string {
         </CardBody> -->
 
         <CardFooter class="tw-p-5 tw-pt-2">
-            <button class="btn btn-primary">Action</button>
-            <button class="btn btn-secondary">Secondary Action</button>
+            <Button size="sm" variant="primary" @click="handleHireClick">
+                <div>
+                    <!-- <User class="tw-w-4 tw-h-4 tw-inline-block tw-mr-1 tw-mb-0.5" /> -->
+                    <BriefcaseBusiness class="tw-w-4 tw-h-4 tw-inline-block tw-mr-1 tw-mb-0.5" />
+                    <span class="tw-text-sm">Hire</span>
+                </div>
+            </button>
+            <!-- <Button class="btn btn-secondary">Secondary Action</button> -->
         </CardFooter>
     </Card>
 </template>
