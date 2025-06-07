@@ -13,11 +13,9 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        "@": path.resolve(import.meta.dirname, "./src"),
-        "@tests": path.resolve(import.meta.dirname, "./tests")
+        "@": "src"
       }
     }
-
   },
   integrations: [vue(), tailwind({ applyBaseStyles: false })],
   env: {
