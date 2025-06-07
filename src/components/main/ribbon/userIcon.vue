@@ -19,5 +19,5 @@ const { user, isLoading, isOffline } = useGetUser();
         <User class="tw-inline tw-mr-2" />
         Login
     </Button>
-    <Avatar v-else-if="user" :src="user?.profilePicture" alt="User Profile Picture" />
+    <Avatar v-else-if="user" :src="user?.profile?.profilePicture" alt="User Profile Picture" />
 </template>
