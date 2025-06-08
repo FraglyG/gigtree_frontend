@@ -144,7 +144,7 @@ async function handleImageButtonClick() {
                 </div>
                 <div v-if="isEditable && !isEditing" class="tw-flex tw-flex-row tw-items-center tw-gap-2">
                     <Button size="sm" variant="secondary" @click="handleEditStart">{{ listing ? 'Edit' :
-                        'Create'}}</Button>
+                        'Create' }}</Button>
                 </div>
                 <div v-else-if="!isEditable && isLoading">
                     <Skeleton class="tw-w-20 tw-h-6 tw-rounded" />
@@ -153,7 +153,17 @@ async function handleImageButtonClick() {
         </Card>
 
         <!-- card -->
-        <Card v-if="isEditing" class="tw-p-1">
+        <Card v-if="user?.moderation?.jobListingBan?.isBanned">
+            <CardBody class="tw-p-4">
+                <p class="tw-text-muted-foreground tw-font-semibold tw-text-md">Whoops..</p>
+                <p class="tw-text-muted-foreground tw-text-sm">You were banned from making job lists</p>
+                <p class="tw-text-muted-foreground tw-text-sm">Reason: {{ user.moderation.jobListingBan.banReason ||
+                    "Undisclosed reason" }}</p>
+                <p class="tw-text-muted-foreground tw-text-sm">{{ user.moderation.jobListingBan.unbannedAt ? `You'll be
+                    unbanned at: ${user.moderation.jobListingBan.unbannedAt}` : "This ban is permanent." }}</p>
+            </CardBody>
+        </Card>
+        <Card v-else-if="isEditing" class="tw-p-1">
             <CardThumbnail>
                 <Photo v-if="editableListing" :src="editableListing.thumbnailUrl" alt="Profile Thumbnail"
                     class="tw-w-full tw-h-20 tw-rounded">
