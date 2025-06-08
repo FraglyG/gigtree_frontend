@@ -22,7 +22,7 @@ const getSize = (offset: number = 0) => {
 </script>
 
 <template>
-    <Photo :src="src" :alt="alt" :class="customClass">
+    <Photo :key="src" :src="src" :alt="alt" :class="customClass" :style="{ width: getSize(), height: getSize() }" class="tw-rounded-full tw-object-cover">
         <PhotoFallback>
             <div :style="{ width: getSize(), height: getSize() }" class="tw-rounded-full tw-bg-input tw-p-2 tw-border tw-border-border">
                 <User class="tw-w-full tw-h-full" />

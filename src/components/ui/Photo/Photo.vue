@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, provide, ref, toRefs } from 'vue';
+import { nextTick, onMounted, provide, ref, toRefs, watch } from 'vue';
 
 const props = defineProps<{
     src?: string
@@ -33,7 +33,13 @@ function handleImageError() {
     isLoading.value = false
 }
 
-onMounted(async () => {
+function resetImageState() {
+    imageLoaded.value = false
+    imageError.value = false
+    isLoading.value = true
+}
+
+async function checkImageLoad() {
     // no src -> assume error
     if (!props.src) return handleImageError();
 
@@ -47,6 +53,14 @@ onMounted(async () => {
         if (imgRef.value.naturalWidth > 0) handleImageLoaded()
         else handleImageError()
     }
+}
+
+onMounted(checkImageLoad)
+
+// Watch for src changes and reset state
+watch(() => props.src, () => {
+    resetImageState()
+    checkImageLoad()
 })
 </script>
 

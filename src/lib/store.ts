@@ -104,20 +104,21 @@ export function getUserCallback(cb: GetUserCallback, options?: GetUserOptions) {
     }
 
     // Add to currently fetching
-    CACHE.currentlyFetching.set(storagePath, [cb]);
-
-    function callCallbackFuncs(user?: User, err?: string) {
+    CACHE.currentlyFetching.set(storagePath, [cb]); function callCallbackFuncs(user?: User, err?: string) {
         console.log("[STORE] User fetched", user, "Error:", err);
 
         // embed helper functions
-        if (user && !("update" in user)) user = {
-            ...user,
-            isUserController: true,
-            update: (newUser: User) => {
-                if (useCache) localStorage.setItem(storagePath, JSON.stringify(newUser));
-                callCallbackFuncs(newUser);
-            }
-        } as UserController;
+        if (user && !("update" in user)) {
+            const userController = {
+                ...user,
+                isUserController: true,
+                update: (newUser: User) => {
+                    if (useCache) localStorage.setItem(storagePath, JSON.stringify(newUser));
+                    callCallbackFuncs(newUser);
+                }
+            } as UserController;
+            user = userController;
+        }
 
         // run callbacks
         const callbackFunctions = [CACHE.currentlyFetching.get(storagePath), CACHE.listeners.get(storagePath)].flat().filter(e => e !== undefined);
