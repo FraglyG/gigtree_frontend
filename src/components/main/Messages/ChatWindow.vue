@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, computed, watch } from 'vue';
+import { ref, onMounted, nextTick, computed, watch, onUnmounted } from 'vue';
 import { useMessenger, type ChannelData, type MessageData } from '@/composables/messanger';
 import { useGetUser } from '@/composables/getUser';
 import Message from './Message.vue';
@@ -16,6 +16,7 @@ interface EnhancedMessage extends MessageData {
 const props = defineProps<{
     channelId: string;
     channelData: ChannelData;
+    messageData: ReturnType<typeof useMessenger>;
 }>();
 
 // Composables
@@ -30,8 +31,11 @@ const {
     getChannelDisplayName,
     getChannelAvatar,
     getSenderName,
-    getSenderAvatar
-} = useMessenger();
+    getSenderAvatar,
+    unsubscribeFromChannel,
+    isChannelConnected,
+    isAllChannelsConnected
+} = props.messageData;
 
 // State
 const newMessage = ref('');
@@ -45,6 +49,7 @@ const error = computed(() => getMessagesError(props.channelId));
 
 const channelDisplayName = computed(() => getChannelDisplayName(props.channelData));
 const channelAvatar = computed(() => getChannelAvatar(props.channelData));
+const channelConnected = ref(false);
 
 const canSendMessage = computed(() => {
     return newMessage.value.trim().length > 0 &&
@@ -53,6 +58,16 @@ const canSendMessage = computed(() => {
 });
 
 // Methods
+async function loadChannel(channelId: string) {
+    await fetchMessages(channelId);
+    await nextTick();
+    scrollToBottom();
+}
+
+function updateChannelConnectionStatus() {
+    channelConnected.value = isChannelConnected(props.channelId) || isAllChannelsConnected();
+}
+
 async function handleSendMessage() {
     if (!canSendMessage.value) return;
 
@@ -99,26 +114,33 @@ async function enhanceMessages(messages: MessageData[]): Promise<EnhancedMessage
 
 // Keep injecting sender info
 watch(messages, async (newMessages) => {
-    if (newMessages && newMessages.length > 0) enhancedMessages.value = await enhanceMessages(newMessages);
-    else enhancedMessages.value = [];
-}, { immediate: true });
+    if (newMessages && newMessages.length > 0) {
+        enhancedMessages.value = await enhanceMessages(newMessages);
 
-watch(() => props.channelId, async (newChannelId) => {
-    if (newChannelId) {
-        await fetchMessages(newChannelId);
+        // Auto-scroll to bottom when new messages arrive
         await nextTick();
         scrollToBottom();
+    } else {
+        enhancedMessages.value = [];
     }
 }, { immediate: true });
+
+watch(() => props.channelId, async (newChannelId, oldChannelId) => {
+    if (newChannelId) await loadChannel(newChannelId);
+});
 
 // Initial load
 onMounted(async () => {
-    if (props.channelId) {
-        await fetchMessages(props.channelId);
-        await nextTick();
-        scrollToBottom();
-    }
+    if (props.channelId) await loadChannel(props.channelId);
+    setTimeout(updateChannelConnectionStatus, 1000);
 });
+
+// Cleanup on unmount
+onUnmounted(() => {
+    if (props.channelId) unsubscribeFromChannel(props.channelId);
+});
+
+updateChannelConnectionStatus();
 </script>
 
 <template>
@@ -130,9 +152,13 @@ onMounted(async () => {
                     <Avatar :src="channelAvatar" :size-px="40" />
                     <div>
                         <h3 class="tw-font-semibold tw-text-lg">{{ channelDisplayName }}</h3>
-                        <p class="tw-text-sm tw-text-muted-foreground">
-                            {{ channelData.otherUsers.length === 1 ? 'Online' : `${channelData.otherUsers.length}
-                            members` }}
+                        <p class="tw-text-sm tw-text-muted-foreground tw-flex tw-items-center tw-gap-1">
+                            <span :class="channelConnected ? 'tw-text-green-500' : 'tw-text-gray-400'"
+                                class="tw-w-2 tw-h-2 tw-rounded-full"
+                                :style="{ backgroundColor: channelConnected ? '#10b981' : '#9ca3af' }">
+                            </span>
+                            {{ channelConnected ? 'Connected' : 'Offline' }}
+                            {{ channelData.otherUsers.length > 1 ? ` • ${channelData.otherUsers.length} members` : '' }}
                         </p>
                     </div>
                 </div>
@@ -143,7 +169,7 @@ onMounted(async () => {
         </div>
 
         <!-- Messages Container -->
-        <div ref="messagesContainer" class="tw-flex-1 tw-overflow-y-auto tw-p-4 tw-space-y-4">
+        <div ref="messagesContainer" class="scroll tw-flex-1 tw-overflow-y-auto tw-p-4 tw-space-y-4">
             <!-- Loading State -->
             <div v-if="isLoading" class="tw-space-y-4">
                 <div v-for="i in 8" :key="i" class="tw-flex tw-space-x-3"
@@ -169,8 +195,8 @@ onMounted(async () => {
                 <Button @click="() => fetchMessages(channelId)" variant="secondary" outline size="sm">
                     Try Again
                 </Button>
-            </div> 
-            
+            </div>
+
             <!-- Messages -->
             <div v-else-if="enhancedMessages.length > 0" class="tw-space-y-4">
                 <Message v-for="message in enhancedMessages" :key="message.messageId" :author-name="message.senderName"
@@ -186,7 +212,7 @@ onMounted(async () => {
 
         <!-- Message Input -->
         <div class="tw-p-4 tw-border-t tw-border-border tw-bg-background">
-            <div class="tw-flex tw-space-x-2">
+            <div class="tw-flex tw-items-center tw-space-x-2">
                 <div class="tw-flex-1 tw-relative">
                     <textarea v-model="newMessage" @keypress="handleKeyPress" placeholder="Type a message..." rows="1"
                         class="tw-w-full tw-px-4 tw-py-3 tw-bg-muted tw-border-0 tw-rounded-lg tw-text-sm tw-resize-none focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-primary"
@@ -195,8 +221,8 @@ onMounted(async () => {
                         {{ newMessage.length }}/500
                     </div>
                 </div>
-                <Button @click="handleSendMessage" :disabled="!canSendMessage" class="tw-self-end" size="sm">
-                    <Send class="tw-w-4 tw-h-4" />
+                <Button @click="handleSendMessage" :disabled="!canSendMessage" class="tw-w-8 tw-h-8 tw-mb-2" size="sm">
+                    <Send class="tw-w-6 tw-h-6" />
                 </Button>
             </div>
         </div>

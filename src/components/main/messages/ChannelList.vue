@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useMessenger, type ChannelData } from '@/composables/messanger';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 
 const props = defineProps<{
     selectedChannelId?: string;
+    messageData: ReturnType<typeof useMessenger>;
 }>();
 
 const emit = defineEmits<{
@@ -24,8 +25,9 @@ const {
     getChannelDisplayName,
     getChannelAvatar,
     formatMessageTime,
-    searchChannels
-} = useMessenger();
+    searchChannels,
+    isChannelConnected
+} = props.messageData;
 
 // State
 const searchQuery = ref('');
@@ -50,6 +52,10 @@ function truncateMessage(content: string, maxLength: number = 50): string {
 onMounted(() => {
     fetchChannels();
 });
+
+watch(channels, () => {
+    console.log("CHANNEL UPDATED", channels.value);
+})
 </script>
 
 <template>
@@ -111,13 +117,18 @@ onMounted(() => {
                     <div class="tw-flex tw-items-center tw-space-x-3">
                         <!-- Avatar -->
                         <Avatar :src="getChannelAvatar(channel)" :size-px="48" class="tw-flex-shrink-0" />
-
                         <!-- Content -->
                         <div class="tw-flex-1 tw-min-w-0">
                             <div class="tw-flex tw-items-center tw-justify-between tw-mb-1">
-                                <h4 class="tw-font-medium tw-text-sm tw-truncate">
-                                    {{ getChannelDisplayName(channel) }}
-                                </h4>
+                                <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+                                    <h4 class="tw-font-medium tw-text-sm tw-truncate">
+                                        {{ getChannelDisplayName(channel) }}
+                                    </h4>
+                                    <span v-if="isChannelConnected(channel.channelId)"
+                                        class="tw-w-2 tw-h-2 tw-bg-green-500 tw-rounded-full tw-flex-shrink-0"
+                                        title="Connected">
+                                    </span>
+                                </div>
                                 <span v-if="channel.latestMessage"
                                     class="tw-text-xs tw-text-muted-foreground tw-flex-shrink-0">
                                     {{ formatMessageTime(channel.latestMessage.createdAt) }}

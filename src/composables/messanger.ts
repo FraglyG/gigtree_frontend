@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, triggerRef, watch } from 'vue';
 import { api } from '@/lib/api';
 
 export interface MessageData {
@@ -24,14 +24,7 @@ export interface ChannelData {
     ownerUserIds: string[];
     createdAt: string;
     updatedAt: string;
-    latestMessage: {
-        messageId: string;
-        channelId: string;
-        senderUserId: string;
-        content: string;
-        createdAt: string;
-        updatedAt: string;
-    } | null;
+    latestMessage: MessageData | null;
     otherUsers: {
         userId: string;
         username: string;
@@ -81,6 +74,21 @@ interface CreateChannelApiResponse {
     message?: string;
 }
 
+// SSE Related interfaces
+interface SSEMessage {
+    type: 'connected' | 'message' | 'heartbeat';
+    data?: MessageData;
+    channelId: string;
+    message?: string;
+    timestamp: string;
+}
+
+interface SSEConnection {
+    eventSource: EventSource;
+    channelId: string;
+    connected: boolean;
+}
+
 export function useMessenger() {
     // State
     const channels = ref<ChannelData[]>([]);
@@ -92,12 +100,17 @@ export function useMessenger() {
     const channelsError = ref<string | null>(null);
     const messagesError = ref<Map<string, string | null>>(new Map());
 
+    // SSE State
+    const sseConnections = ref<Map<string, SSEConnection>>(new Map());
+    const sseConnectionStatus = ref<Map<string, boolean>>(new Map());
+
     // Computed
     const hasChannels = computed(() => channels.value.length > 0);
 
     // Cache
     const CACHE = {
-        users: new Map<string, User>()
+        users: new Map<string, User>(),
+        cachingUsers: new Set<string>()
     }
 
     // Helpers
@@ -108,12 +121,33 @@ export function useMessenger() {
 
         // Fetch from server
         try {
+            if (CACHE.cachingUsers.has(userId)) {
+                return new Promise((resolve) => {
+                    // TODO: add more optimized way some day
+                    const interval = setInterval(() => {
+                        if (!CACHE.cachingUsers.has(userId)) {
+                            clearInterval(interval);
+                            resolve(CACHE.users.get(userId) || null);
+                        }
+                    }, 100);
+                });
+            }
+
+            CACHE.cachingUsers.add(userId);
+
             const response = await api.request(`/api/public/user?userId=${userId}`);
-            if (!response.ok) throw new Error(`Failed to fetch user with ID ${userId}`);
+            if (!response.ok) {
+                CACHE.cachingUsers.delete(userId);
+                throw new Error(`Failed to fetch user with ID ${userId}`);
+            }
 
             const userData = await response.json();
-            if (!userData.success) throw new Error(userData.message || 'Failed to fetch user data');
+            if (!userData.success) {
+                CACHE.cachingUsers.delete(userId);
+                throw new Error(userData.message || 'Failed to fetch user data');
+            }
 
+            CACHE.cachingUsers.delete(userId);
             CACHE.users.set(userId, userData.user);
             return userData;
         } catch (err) {
@@ -187,6 +221,8 @@ export function useMessenger() {
     }
 
     // Message Management
+
+    /** Fetch messages from server */
     async function fetchMessages(channelId: string, limit: number = 50): Promise<boolean> {
         isLoadingMessages.value.set(channelId, true);
         messagesError.value.set(channelId, null);
@@ -250,38 +286,11 @@ export function useMessenger() {
             });
 
             const result: SendMessageApiResponse = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.message || 'Failed to send message');
-            }
+            if (!result.success) throw new Error(result.message || 'Failed to send message');
 
             const newMessage = result.data;
             const messageChannelId = newMessage.channelId;
-
-            // Add message to local state
-            const existingMessages = messages.value.get(messageChannelId) || [];
-            messages.value.set(messageChannelId, [...existingMessages, newMessage]);
-
-            // Update the channel's latest message in the channels list
-            const channelIndex = channels.value.findIndex(c => c.channelId === messageChannelId);
-            if (channelIndex !== -1) {
-                channels.value[channelIndex].latestMessage = {
-                    messageId: newMessage.messageId,
-                    channelId: newMessage.channelId,
-                    senderUserId: newMessage.senderUserId,
-                    content: newMessage.content,
-                    createdAt: newMessage.createdAt,
-                    updatedAt: newMessage.updatedAt
-                };
-                channels.value[channelIndex].updatedAt = newMessage.createdAt;
-
-                // Re-sort channels by latest message
-                channels.value.sort((a, b) => {
-                    const aTime = a.latestMessage?.createdAt || a.createdAt;
-                    const bTime = b.latestMessage?.createdAt || b.createdAt;
-                    return new Date(bTime).getTime() - new Date(aTime).getTime();
-                });
-            }
+            addMessageToLocalState(messageChannelId, newMessage, true);
 
             return { success: true, message: newMessage };
         } catch (err) {
@@ -293,14 +302,173 @@ export function useMessenger() {
         }
     }
 
+    /** Fetch messages from cache */
     function getMessages(channelId: string): MessageData[] {
         return messages.value.get(channelId) || [];
     }
 
     function getMessagesError(channelId: string): string | null {
         return messagesError.value.get(channelId) || null;
-    } function isChannelLoading(channelId: string) {
+    }
+
+    function isChannelLoading(channelId: string) {
         return computed(() => isLoadingMessages.value.get(channelId) || false);
+    }
+
+    /** Helper function for making it easy to connection to message SSE endpoints */
+    async function subscribeToMessageSSE(connectionId: string, endpoint: string): Promise<EventSource | null> {
+        try {
+            const baseUrl = import.meta.env.PUBLIC_BACKEND_URL || '';
+            const sseUrl = `${baseUrl}${endpoint}`;
+
+            const eventSource = new EventSource(sseUrl, { withCredentials: true });
+            const connection: SSEConnection = { eventSource, channelId: connectionId, connected: false };
+
+            // Handle connection events
+            eventSource.onopen = () => {
+                connection.connected = true;
+                sseConnectionStatus.value.set(connectionId, true);
+            };
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const data: SSEMessage = JSON.parse(event.data);
+                    handleSSEMessage(data);
+                } catch (error) {
+                    console.error('Error parsing SSE message:', error);
+                }
+            };
+
+            eventSource.onerror = (event) => {
+                console.error('SSE error for connection:', connectionId, event);
+                connection.connected = false;
+                sseConnectionStatus.value.set(connectionId, false);
+
+                // Only attempt reconnection if the connection still exists in our map
+                setTimeout(() => {
+                    if (sseConnections.value.has(connectionId)) {
+                        console.log('Attempting to reconnect to subscription endpoint:', endpoint);
+                        subscribeToMessageSSE(connectionId, endpoint);
+                    }
+                }, 5000);
+            };
+
+            // Store connection
+            sseConnections.value.set(connectionId, connection);
+
+            return eventSource;
+        } catch (error) {
+            console.error('Failed to subscribe to SSE:', error);
+            return null;
+        }
+    }
+
+    // SSE Management
+    async function subscribeToAllChannels(): Promise<boolean> {
+        const sseUrl = `/api/message/subscribe`;
+        const connection = subscribeToMessageSSE('ALL_CHANNELS', sseUrl);
+
+        if (!connection) {
+            console.error('Failed to subscribe to all channels');
+            return false;
+        } else {
+            sseConnectionStatus.value.set('ALL_CHANNELS', true);
+            return true;
+        }
+    }
+
+    async function subscribeToChannel(channelId: string): Promise<boolean> {
+        const sseUrl = `/api/message/channel/subscribe?channelId=${channelId}`;
+        const connection = await subscribeToMessageSSE(channelId, sseUrl);
+
+        if (!connection) {
+            console.error(`Failed to subscribe to channel ${channelId}`);
+            return false;
+        } else {
+            sseConnectionStatus.value.set(channelId, true);
+            return true;
+        }
+    }
+
+    function handleSSEMessage(data: SSEMessage) {
+        switch (data.type) {
+            case 'connected':
+                break;
+            case 'message':
+                if (data.data) addMessageToLocalState(data.channelId, data.data);
+                break;
+
+            case 'heartbeat':
+                // Keep connection alive
+                break;
+
+            default:
+                console.warn('Unknown SSE message type:', data.type);
+        }
+    }
+
+    function unsubscribeFromChannel(channelId: string) {
+        const connection = sseConnections.value.get(channelId);
+        if (connection) {
+            connection.eventSource.close();
+            sseConnections.value.delete(channelId);
+            sseConnectionStatus.value.delete(channelId);
+        }
+    }
+
+    function unsubscribeFromAllChannels() {
+        sseConnections.value.forEach((connection, channelId) => {
+            connection.eventSource.close();
+        });
+        sseConnections.value.clear();
+        sseConnectionStatus.value.clear();
+    }
+
+    function isChannelConnected(channelId: string): boolean {
+        return sseConnectionStatus.value.get(channelId) || false;
+    }
+
+    function isAllChannelsConnected(): boolean {
+        return sseConnectionStatus.value.get('ALL_CHANNELS') || false;
+    }
+
+    /**  Helper function to update channel's latest message and reorder channels */
+    function updateChannelLatestMessage(channelId: string, message: MessageData) {
+        const channelIndex = channels.value.findIndex(c => c.channelId === channelId);
+        if (channelIndex !== -1) {
+            // Update the channel's latest message
+            channels.value[channelIndex].latestMessage = message;
+            channels.value[channelIndex].updatedAt = message.createdAt;
+
+            // Re-sort channels by latest message time (most recent first)
+            channels.value.sort((a, b) => {
+                const aTime = a.latestMessage?.createdAt || a.createdAt;
+                const bTime = b.latestMessage?.createdAt || b.createdAt;
+                return new Date(bTime).getTime() - new Date(aTime).getTime();
+            });
+
+            triggerRef(channels);
+        }
+    }
+
+    /** Helper function to add message to local state if needed */
+    function addMessageToLocalState(channelId: string, message: MessageData, forceUpdate: boolean = false) {
+        const existingMessages = messages.value.get(channelId) || [];
+
+        // Prevent duplicates by checking if message already exists
+        const messageExists = existingMessages.some(m => m.messageId === message.messageId);
+        if (!messageExists || forceUpdate) {
+            if (messageExists && forceUpdate) {
+                // Replace existing message
+                const updatedMessages = existingMessages.map(m => m.messageId === message.messageId ? message : m);
+                messages.value.set(channelId, updatedMessages);
+            } else {
+                // Add new message
+                messages.value.set(channelId, [...existingMessages, message]);
+            }
+
+            updateChannelLatestMessage(channelId, message);
+        }
     }
 
     // Utility functions
@@ -381,6 +549,7 @@ export function useMessenger() {
 
     // Cleanup function
     function clearState() {
+        unsubscribeFromAllChannels();
         channels.value = [];
         messages.value.clear();
         isLoadingChannels.value = false;
@@ -394,7 +563,7 @@ export function useMessenger() {
 
     return {
         // State
-        channels: computed(() => channels.value),
+        channels: channels,
         hasChannels,
         isLoadingChannels: computed(() => isLoadingChannels.value),
         isSendingMessage: computed(() => isSendingMessage.value),
@@ -412,7 +581,13 @@ export function useMessenger() {
         sendMessage,
         getMessages,
         getMessagesError,
-        isChannelLoading,
+        isChannelLoading,        // SSE methods
+        subscribeToChannel,
+        subscribeToAllChannels,
+        unsubscribeFromChannel,
+        unsubscribeFromAllChannels,
+        isChannelConnected,
+        isAllChannelsConnected,
 
         // Utility methods
         getChannelDisplayName,

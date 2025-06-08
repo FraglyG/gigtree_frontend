@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { Button } from '@/components/ui/Button';
+import { useMessenger, type ChannelData } from '@/composables/messanger';
+import { ArrowLeft, MessageCircle } from 'lucide-vue-next';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import ChannelList from './ChannelList.vue';
 import ChatWindow from './ChatWindow.vue';
-import { Card } from '@/components/ui/Card';
-import { MessageCircle } from 'lucide-vue-next';
-import { useMessenger, type ChannelData } from '@/composables/messanger';
 
 // Use messaging composable
-const { getChannelById, fetchChannels } = useMessenger();
+// const { getChannelById, fetchChannels, unsubscribeFromAllChannels } = useMessenger();
+const messageData = useMessenger();
 
 // State
 const selectedChannelId = ref<string | null>(null);
 const selectedChannelData = ref<ChannelData | null>(null);
 const isLoadingChannelFromUrl = ref(false);
+const showMobileChannelList = ref(true);
+const isInitializing = ref(true);
 
 // Computed
 const hasSelectedChannel = computed(() => selectedChannelId.value && selectedChannelData.value);
@@ -29,30 +32,22 @@ function updateUrlWithChannel(channelId: string | null) {
     if (typeof window === 'undefined') return;
 
     const url = new URL(window.location.href);
-    if (channelId) {
-        url.searchParams.set('channel', channelId);
-    } else {
-        url.searchParams.delete('channel');
-    }
+    if (channelId) url.searchParams.set('channel', channelId);
+    else url.searchParams.delete('channel');
 
-    // Update URL without page reload
     window.history.replaceState({}, '', url.toString());
 }
 
 // Methods
 async function fetchChannelDataById(channelId: string): Promise<ChannelData | null> {
     try {
-        // First try to get from already loaded channels
-        const existingChannel = getChannelById(channelId);
-        if (existingChannel) {
-            return existingChannel;
-        }
+        // Try from cache
+        const existingChannel = messageData.getChannelById(channelId);
+        if (existingChannel) return existingChannel;
 
-        // If not found, fetch fresh channels
-        const success = await fetchChannels();
-        if (success) {
-            return getChannelById(channelId) || null;
-        }
+        // Otherwise refresh channels
+        const success = await messageData.fetchChannels();
+        if (success) return messageData.getChannelById(channelId) || null;
 
         return null;
     } catch (error) {
@@ -64,13 +59,20 @@ async function fetchChannelDataById(channelId: string): Promise<ChannelData | nu
 async function handleChannelSelect(channelId: string, channelData: ChannelData) {
     selectedChannelId.value = channelId;
     selectedChannelData.value = channelData;
+    showMobileChannelList.value = false;
     updateUrlWithChannel(channelId);
 }
 
 function clearSelection() {
     selectedChannelId.value = null;
     selectedChannelData.value = null;
+    showMobileChannelList.value = true;
     updateUrlWithChannel(null);
+}
+
+function handleBackToChannels() {
+    showMobileChannelList.value = true;
+    clearSelection();
 }
 
 function handlePopState() {
@@ -85,10 +87,10 @@ async function loadChannelFromUrl(channelId: string) {
 
     try {
         const channelData = await fetchChannelDataById(channelId);
-
         if (channelData) {
             selectedChannelId.value = channelId;
             selectedChannelData.value = channelData;
+            showMobileChannelList.value = false;
         } else {
             console.warn(`Channel ${channelId} not found or user doesn't have access`);
             updateUrlWithChannel(null);
@@ -105,7 +107,9 @@ async function loadChannelFromUrl(channelId: string) {
 onMounted(async () => {
     const channelIdFromUrl = getChannelIdFromUrl();
     if (channelIdFromUrl) await loadChannelFromUrl(channelIdFromUrl);
+    await messageData.subscribeToAllChannels();
 
+    isInitializing.value = false;
     window.addEventListener('popstate', handlePopState);
 });
 
@@ -113,17 +117,56 @@ onMounted(async () => {
 onMounted(() => {
     return () => window.removeEventListener('popstate', handlePopState);
 });
+
+// Cleanup SSE connections when component unmounts
+onUnmounted(() => {
+    messageData.unsubscribeFromAllChannels();
+    window.removeEventListener('popstate', handlePopState);
+});
 </script>
 
 <template>
-    <div class="tw-h-full tw-flex tw-bg-background">
-        <!-- Channel List Sidebar -->
-        <div class="tw-w-80 tw-border-r tw-border-border tw-bg-muted/30">
-            <ChannelList :selected-channel-id="selectedChannelId || undefined" @select-channel="handleChannelSelect" />
-        </div> 
-        
+    <!-- Loading skeleton while initializing -->
+    <div v-if="isInitializing" class="tw-h-full tw-flex tw-bg-background">
+        <div class="tw-w-80 tw-border-r tw-border-border tw-bg-muted/30 tw-p-4">
+            <div class="tw-space-y-4">
+                <!-- Skeleton for channel list items -->
+                <div v-for="i in 5" :key="i" class="tw-flex tw-items-center tw-space-x-3 tw-p-3 tw-rounded-lg">
+                    <div class="tw-w-10 tw-h-10 tw-bg-muted tw-rounded-full tw-animate-pulse"></div>
+                    <div class="tw-flex-1">
+                        <div class="tw-h-4 tw-bg-muted tw-rounded tw-animate-pulse tw-mb-2"></div>
+                        <div class="tw-h-3 tw-bg-muted tw-rounded tw-animate-pulse tw-w-3/4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tw-flex-1 tw-flex tw-items-center tw-justify-center">
+            <div class="tw-text-center">
+                <div
+                    class="tw-animate-spin tw-w-8 tw-h-8 tw-border-2 tw-border-primary tw-border-t-transparent tw-rounded-full tw-mx-auto tw-mb-4">
+                </div>
+                <p class="tw-text-muted-foreground">Loading messages...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main interface -->
+    <div v-else class="tw-h-full tw-flex tw-bg-background tw-overflow-hidden"> <!-- Channel List Sidebar -->
+        <div class="tw-border-r tw-border-border tw-bg-muted/30 tw-flex tw-flex-col tw-overflow-hidden" :class="{
+            'tw-hidden md:tw-block': !showMobileChannelList && hasSelectedChannel,
+            'tw-w-full md:tw-w-80': showMobileChannelList,
+            'tw-w-80': !showMobileChannelList && hasSelectedChannel
+        }">
+            <ChannelList :message-data="messageData" :selected-channel-id="selectedChannelId || undefined"
+                @select-channel="handleChannelSelect" />
+        </div>
+
         <!-- Chat Area -->
-        <div class="tw-flex-1 tw-flex tw-flex-col">
+        <div class="tw-flex-1 tw-flex tw-flex-col tw-overflow-hidden" :class="{
+            'tw-hidden md:tw-flex': showMobileChannelList && hasSelectedChannel,
+            'tw-w-full': !showMobileChannelList
+        }">
+
             <!-- Loading state when loading channel from URL -->
             <div v-if="isLoadingChannelFromUrl" class="tw-flex-1 tw-flex tw-items-center tw-justify-center">
                 <div class="tw-text-center">
@@ -135,8 +178,19 @@ onMounted(() => {
             </div>
 
             <!-- Chat Window -->
-            <ChatWindow v-else-if="hasSelectedChannel" :channel-id="selectedChannelId!"
-                :channel-data="selectedChannelData!" />
+            <div v-else-if="hasSelectedChannel" class="tw-flex-1 tw-flex tw-flex-col tw-overflow-hidden">
+                <!-- Mobile Back Button -->
+                <div
+                    class="tw-flex md:tw-hidden tw-items-center tw-gap-2 tw-p-4 tw-border-b tw-border-border tw-flex-shrink-0">
+                    <Button variant="ghost" size="sm" @click="handleBackToChannels">
+                        <ArrowLeft class="tw-w-5 tw-h-5" />
+                    </Button>
+                    <span class="tw-text-lg tw-font-semibold">Back to Conversations</span>
+                </div>
+
+                <ChatWindow :message-data="messageData" :channel-id="selectedChannelId!"
+                    :channel-data="selectedChannelData!" />
+            </div>
 
             <!-- Empty State -->
             <div v-else class="tw-flex-1 tw-flex tw-items-center tw-justify-center tw-bg-muted/10">
