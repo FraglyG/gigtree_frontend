@@ -228,7 +228,9 @@ onMounted(() => {
                     Price {{ sortBy === 'price' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
                 </Button>
             </div>
-        </div>        <!-- Loading State -->
+        </div>
+
+        <!-- Loading State -->
         <div v-if="isLoading"
             class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 md:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-4">
             <Card v-for="i in props.pageSize" :key="i" class="tw-w-[240px]">
@@ -268,9 +270,8 @@ onMounted(() => {
 
         <!-- Listings Grid -->
         <div v-else class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 md:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-4">
-            <div class="tw-flex tw-flex-row tw-justify-center tw-align-middle">
-                <UserListing v-for="listing in listings" :key="listing.listingId" :user="listing.owner!"
-                    :listing="listing" />
+            <div v-for="listing in listings" class="tw-flex tw-flex-row tw-justify-center tw-align-middle">
+                <UserListing :key="listing.listingId" :user="listing.owner!" :listing="listing" />
             </div>
         </div>
 
