@@ -1,0 +1,174 @@
+---
+import { Button } from "@/components/ui/Button";
+import { Card, CardBody, CardHeader } from "@/components/ui/Card";
+import MainLayout from "@/layouts/MainLayout.astro";
+import { OctagonAlert, UserPlus } from "lucide-vue-next";
+---
+
+<MainLayout>
+	<div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-mb-8">
+		<div class="tw-w-[500px] tw-h-fit">
+			<Card class="tw-w-full tw-h-fit">
+				<CardHeader class="tw-my-4 tw-mx-8">
+					<div class="tw-flex tw-flex-row">
+						<UserPlus class="tw-mr-3 tw-mt-1" />
+						<h2 class="tw-text-2xl tw-font-semibold">Register</h2>
+					</div>
+
+					<p class="tw-mt-1">Already have an account? <a class="link" href="/login">Log In</a></p>
+				</CardHeader>
+
+				<CardBody class="tw-my-4 tw-mx-8">
+					<form id="signup_form" class="tw-flex tw-flex-col tw-gap-5">
+						<div class="registration_page">
+							<label class="tw-flex tw-flex-col">
+								<span class="tw-text-base tw-mb-1">Username</span>
+								<input type="text" name="username" class="tw-border tw-border-gray-300 tw-rounded tw-p-2 tw-text-input" required />
+							</label>
+
+							<div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-mt-4">
+								<label class="tw-flex tw-flex-col">
+									<span class="tw-text-base tw-mb-1">First Name</span>
+									<input type="text" name="firstName" class="tw-border tw-border-gray-300 tw-rounded tw-p-2 tw-text-input" required />
+								</label>
+
+								<label class="tw-flex tw-flex-col">
+									<span class="tw-text-base tw-mb-1">Last Name</span>
+									<input type="text" name="lastName" class="tw-border tw-border-gray-300 tw-rounded tw-p-2 tw-text-input" required />
+								</label>
+							</div>
+
+							<div class="tw-flex tw-flex-row tw-gap-4 tw-mt-4">
+								<Button class="back_button tw-my-4" type="button" size="lg" variant="muted"> Back </Button>
+								<Button class="next_button tw-my-4" type="button" size="lg" variant="information"> Next </Button>
+							</div>
+						</div>
+
+						<div class="registration_page">
+							<label class="tw-flex tw-flex-col">
+								<span class="tw-text-base tw-mb-1">Email</span>
+								<input type="email" name="email" class="tw-border tw-border-gray-300 tw-rounded tw-p-2 tw-text-input" required />
+							</label>
+							<p class="tw-text-muted-foreground tw-text-sm tw-my-2">Note, a verification email will be sent in your inbox once you register. Please verify your email before logging in.</p>
+
+							<label class="tw-flex tw-flex-col">
+								<span class="tw-text-base tw-mb-1">Password</span>
+								<input type="password" name="password" class="tw-border tw-border-gray-300 tw-rounded tw-p-2 tw-text-input" required />
+							</label>
+							<label class="tw-flex tw-flex-col">
+								<span class="tw-text-base tw-mb-1">Confirm Password</span>
+								<input type="password" name="password" class="tw-border tw-border-gray-300 tw-rounded tw-p-2 tw-text-input" required />
+							</label>
+							<div class="tw-flex tw-flex-row tw-gap-4 tw-mt-4">
+								<Button class="back_button tw-my-4" type="button" size="lg" variant="muted"> Back </Button>
+								<Button id="submit_button" type="button" size="lg" class="tw-my-4"> Register </Button>
+							</div>
+						</div>
+					</form>
+				</CardBody>
+			</Card>
+
+			<div id="error_message_container" class="tw-mt-4 tw-hidden">
+				<Card>
+					<CardHeader class="tw-px-8 tw-py-4">
+						<div class="tw-flex tw-flex-row tw-items-center tw-mb-1">
+							<OctagonAlert class="tw-mr-2 tw-mt-0.5 tw-w-5 tw-h-5" />
+							<h3 class="tw-font-semibold">Registration Error</h3>
+						</div>
+						<p class="tw-text-sm tw-text-muted-foreground" id="error_message">This page is not yet implemented.</p>
+					</CardHeader>
+				</Card>
+			</div>
+		</div>
+	</div>
+</MainLayout>
+
+<style scoped>
+	.registration_page {
+		display: none;
+	}
+</style>
+
+<script>
+	import { api } from "@/lib/api";
+
+	const form = document.getElementById("signup_form") as HTMLFormElement;
+	const formSubmitButton = document.getElementById("submit_button") as HTMLButtonElement;
+	const formErrorMessage = document.getElementById("error_message") as HTMLParagraphElement;
+	const formErrorContainer = document.getElementById("error_message_container") as HTMLDivElement;
+
+	function displayError(message: string, duration: number = 5000) {
+		formErrorContainer.style.display = "block";
+		formErrorMessage.innerText = message;
+
+		setTimeout(() => {
+			// only hide it again if the error hasn't changed since
+			if (formErrorMessage.innerText == message) formErrorContainer.style.display = "none";
+		}, duration);
+	}
+
+	function handleRegistrationPages() {
+		const pages = form.querySelectorAll<HTMLDivElement>(".registration_page");
+
+		for (const page of pages) {
+			page.style.display = "none";
+
+			const pageNext = page.querySelector(".next_button");
+			const pageBack = page.querySelector(".back_button") as HTMLButtonElement | null;
+
+			// hide pageBack if backPage doesn't exist
+			const backPage = page.previousElementSibling as HTMLDivElement | null;
+			if (pageBack && (!backPage || !backPage.classList.contains("registration_page"))) {
+				pageBack.style.display = "none";
+			}
+
+			pageBack?.addEventListener("click", () => {
+				const previousPage = page.previousElementSibling as HTMLDivElement;
+
+				if (previousPage && previousPage.classList.contains("registration_page")) {
+					page.style.display = "none";
+					previousPage.style.display = "block";
+				}
+			});
+
+			pageNext?.addEventListener("click", () => {
+				const nextPage = page.nextElementSibling as HTMLDivElement;
+
+				if (nextPage && nextPage.classList.contains("registration_page")) {
+					page.style.display = "none";
+					nextPage.style.display = "block";
+				}
+			});
+		}
+
+		if (pages[0]) pages[0].style.display = "block";
+		else console.warn("No registration pages found");
+	}
+
+	handleRegistrationPages();
+
+	formSubmitButton.addEventListener("click", async (event) => {
+		const formData = new FormData(form);
+		const data = Object.fromEntries(formData.entries());
+
+		try {
+			const response = await api.request("/api/authv1/signup", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+
+			console.log("Submitting: ", data);
+
+			const result = await response.json();
+
+			if (!result.success) displayError((result.message ? `${result.message}\n- ${result.validationErrors.join("\n- ")}` : undefined) || result.error || "An unknown error occurred.");
+			else window.location.href = "/login";
+		} catch (error) {
+			console.error("Error:", error);
+			displayError("An error occurred while processing your request. Please try again later.");
+		}
+	});
+</script>

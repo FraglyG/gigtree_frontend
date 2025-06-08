@@ -1,0 +1,95 @@
+---
+import { Button } from "@/components/ui/Button";
+import { GigCard } from "@/components/ui/GigCard";
+import { ProfileSnippet } from "@/components/ui/ProfileSnippet";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { Photo, PhotoLoading, PhotoOverlay } from "@/components/ui/Photo";
+import MainLayout from "@/layouts/MainLayout.astro";
+import Message from "@/components/main/messages/Message.vue";
+---
+
+<MainLayout>
+	<div>
+		<h2 style="margin-bottom: 0;">Super Components</h2>
+		<p class="tw-text-sm tw-text-muted-foreground tw-mb-4">These are components that're made of other components</p>
+
+		<div class="tw-flex tw-flex-col tw-gap-8">
+			<GigCard client:load name="Gig Card" description="Card used for job-listings" userId="0" thumbnailUrl="https://picsum.photos/500/300.webp?random=1" />
+			<ProfileSnippet client:load />
+			<Message client:load authorPfp="https://picsum.photos/200/200.webp?random=1" authorName="John Doe" content="This is a message!" timestamp={new Date()} />
+		</div>
+
+		<br />
+
+		<h2>Buttons</h2>
+		{
+			["primary", "secondary", "information", "success", "muted"].map((variant) => (
+				<div class="section_ltr">
+					{/* Normal */}
+					{["lg", "md", "sm"].map((size) => (
+						<Button size={size as any} variant={variant as any} outline={false} client:load>
+							{`${variant.charAt(0).toUpperCase() + variant.slice(1)}`}
+						</Button>
+					))}
+
+					{/* Break */}
+					<div class="tw-w-5 tw-h-1" />
+
+					{/* Outline */}
+					{["lg", "md", "sm"].map((size) => (
+						<Button size={size as any} variant={variant as any} outline={true} client:load>
+							{`${variant.charAt(0).toUpperCase() + variant.slice(1)}`}
+						</Button>
+					))}
+				</div>
+			))
+		}
+		<br />
+
+		<h2>Photo Overlay</h2>
+		<p class="tw-text-sm tw-text-muted-foreground tw-mb-4">Photo with overlay content (for example, an edit button in the image:)</p>
+		<Photo client:load class="tw-w-80 tw-h-60 tw-rounded-lg" src="https://picsum.photos/400/300.webp?random=2" alt="Sample photo">
+			<PhotoLoading>
+				<Skeleton class="tw-w-full tw-h-full tw-rounded" />
+			</PhotoLoading>
+			<PhotoOverlay>
+				<div class="tw-w-full tw-h-full tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2">
+					<Button variant="primary" size="sm"> Edit </Button>
+				</div>
+			</PhotoOverlay>
+		</Photo>
+
+		<br />
+
+		<h2>Skeletons</h2>
+		<div class="tw-w-fit tw-h-fit tw-flex tw-flex-row tw-gap-2.5">
+			<Skeleton class="tw-w-14 tw-h-14 tw-rounded-full" />
+			<div class="tw-w-fit tw-h-fit tw-flex tw-flex-col tw-gap-2.5">
+				<div class="tw-w-fit tw-h-fit tw-flex tw-items-end tw-flex-row tw-gap-2">
+					<Skeleton class="tw-rounded tw-w-20 tw-h-5" />
+					<Skeleton class="tw-rounded tw-w-16 tw-h-4" />
+				</div>
+				<div class="tw-w-fit tw-h-fit tw-flex tw-flex-col tw-gap-2">
+					<Skeleton class="tw-rounded tw-w-80 tw-h-6" />
+					<Skeleton class="tw-rounded tw-w-60 tw-h-6" />
+				</div>
+			</div>
+		</div>
+	</div>
+</MainLayout>
+
+<style>
+	h2 {
+		font-size: x-large;
+		margin-top: 2rem;
+		margin-bottom: 1rem;
+	}
+
+	.section_ltr {
+		display: flex;
+		flex-direction: row;
+		gap: 1rem;
+		align-items: end;
+		margin-bottom: 1rem;
+	}
+</style>

@@ -1,42 +1,48 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Logo from '../../brand/logo.vue';
-import RibbonNav from "./ribbon_nav.vue";
-import { User } from 'lucide-vue-next';
+import Navigation from "./navigation.vue";
+import UserIcon from "./userIcon.vue";
+
+
+// ===== LAYOUT CLASSES =====
+const layoutClasses = {
+    container: "tw-w-full tw-p-5",
+    mobile: {
+        wrapper: "md:tw-hidden",
+        header: "tw-flex tw-justify-between",
+        navigation: "tw-col-span-2 tw-flex tw-justify-center tw-mt-3"
+    },
+    desktop: {
+        wrapper: "tw-hidden md:tw-grid md:tw-grid-cols-3 tw-items-center",
+        navigation: "tw-flex tw-justify-center",
+        avatar: "tw-flex tw-justify-end"
+    },
+    placeholder: "tw-text-muted-foreground tw-text-sm"
+};
 
 </script>
 
 <template>
-    <div class="tw-w-full tw-p-5">
-        <!-- Mobile layout: 2 rows -->
-        <div class="md:tw-hidden tw-grid tw-grid-cols-2 tw-gap-3">
-            <!-- Logo and Account -->
-            <div class="tw-col-span-1">
+    <div :class="layoutClasses.container">
+        <!-- ===== MOBILE LAYOUT ===== -->
+        <div :class="layoutClasses.mobile.wrapper">
+            <div :class="layoutClasses.mobile.header">
                 <Logo />
+                <UserIcon />
             </div>
-            <div class="tw-col-span-1 tw-flex tw-justify-end">
-                <Avatar class="tw-w-14 tw-h-14">
-                    <AvatarImage src="https://isdev.co/pfp.png" />
-                    <AvatarFallback><User /></AvatarFallback>
-                </Avatar>
-            </div>
-            <!-- Navigation -->
-            <div class="tw-col-span-2 tw-flex tw-justify-center tw-mt-3">
-                <RibbonNav />
+            <div :class="layoutClasses.mobile.navigation">
+                <Navigation />
             </div>
         </div>
 
-        <!-- Desktop layout: 3 columns -->
-        <div class="tw-hidden md:tw-grid md:tw-grid-cols-3 tw-items-center">
+        <!-- ===== DESKTOP LAYOUT ===== -->
+        <div :class="layoutClasses.desktop.wrapper">
             <Logo />
-            <div class="tw-flex tw-justify-center">
-                <RibbonNav />
+            <div :class="layoutClasses.desktop.navigation">
+                <Navigation />
             </div>
-            <div class="tw-flex tw-justify-end">
-                <Avatar class="tw-w-14 tw-h-14">
-                    <AvatarImage src="https://isdev.co/pfp.png" />
-                    <AvatarFallback><User /></AvatarFallback>
-                </Avatar>
+            <div :class="layoutClasses.desktop.avatar">
+                <UserIcon />
             </div>
         </div>
     </div>

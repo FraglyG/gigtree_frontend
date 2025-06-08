@@ -1,0 +1,84 @@
+---
+import { Avatar } from "@/components/ui/Avatar";
+import { Card, CardBody } from "@/components/ui/Card";
+import MainProfile from "@/components/main/profile/profile.vue";
+import MainLayout from "@/layouts/MainLayout.astro";
+import PostEditor from "@/components/main/listing/ListingEditor.vue";
+import { FileUser } from "lucide-vue-next";
+---
+
+<MainLayout>
+	<div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-w-full tw-h-full">
+		<div class="profile_container">
+			<Card class="profile_main_container">
+				<CardBody class="profile_main_container_body">
+					<MainProfile canEdit={true} class="tw-h-full" client:load />
+				</CardBody>
+			</Card>
+
+			<div class="profile_seconary_container tw-bg-muted/50 tw-rounded tw-w-full tw-p-8">
+				<div class="tw-flex tw-flex-row tw-align-middle tw-gap-2 tw-mb-1">
+					<FileUser class="tw-w-6 tw-h-6 tw-mt-0.5" />
+					<h2 class="tw-font-semibold tw-text-lg">Looking for work?</h2>
+				</div>
+				<h3 class="tw-text-muted-foreground">Manage your job-listing here.</h3>
+				<br />
+				<div class="tw-w-full tw-flex tw-justify-center">
+					<PostEditor client:load />
+				</div>
+			</div>
+		</div>
+	</div>
+</MainLayout>
+
+<style scoped>
+	.profile_container {
+		width: 100%;
+		height: 100%;
+
+		min-height: 600px;
+		max-width: 1200px;
+
+		display: flex;
+		flex-direction: row;
+		justify-content: space-around;
+		gap: 30px;
+	}
+
+	.profile_main_container {
+		min-height: inherit;
+		width: 50%;
+		height: 100%;
+	}
+
+	.profile_seconary_container {
+		min-height: inherit;
+		height: 100%;
+		width: 50%;
+		max-width: 700px;
+	}
+
+	.profile_main_container_body {
+		width: 100%;
+		height: 100%;
+		padding: 20px 40px;
+		display: block;
+	}
+
+	@media screen and (max-width: 640px) {
+		.profile_container {
+			flex-direction: column;
+			gap: 20px;
+		}
+		.profile_main_container {
+			width: 100%;
+		}
+		.profile_seconary_container {
+			width: 100%;
+		}
+
+		.profile_main_container_body {
+			padding: 20px;
+		}
+	}
+</style>
