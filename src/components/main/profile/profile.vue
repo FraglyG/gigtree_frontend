@@ -5,7 +5,7 @@ import Skeleton from '@/components/ui/Skeleton/Skeleton.vue';
 import { useGetUser } from '@/composables/getUser';
 import { computed, ref, toRefs, watch } from 'vue';
 import { Button } from '@/components/ui/Button';
-import { BriefcaseBusiness, ImagePlus } from 'lucide-vue-next';
+import { BriefcaseBusiness, ImageMinus, ImagePlus } from 'lucide-vue-next';
 import { TextArea } from '@/components/ui/TextArea';
 import { api } from '@/lib/api';
 import { Input } from '@/components/ui/Input';
@@ -27,13 +27,20 @@ const { triggerUpload } = useFileStorage();
 const isEditable = computed(() => !isLoading.value && !isOffline.value && user.value && refs.canEdit.value);
 const isEditing = ref(false);
 
-function displayErrorMessage(message: string, duration: number = 5000) {
-    const displayMessage = `⚠ ${message}`;
+function displayMessage(message: string, duration: number = 5000) {
     const errorMessageElement = document.getElementById('edit_error_message');
-    if (errorMessageElement) errorMessageElement.textContent = displayMessage;
+    if (errorMessageElement) errorMessageElement.textContent = message;
     setTimeout(() => {
-        if (errorMessageElement && errorMessageElement.textContent == displayMessage) errorMessageElement.textContent = '';
+        if (errorMessageElement && errorMessageElement.textContent == message) errorMessageElement.textContent = '';
     }, duration);
+}
+
+function displayErrorMessage(message: string, duration: number = 5000) {
+    displayMessage(`⚠ ${message}`);
+}
+
+function displayInfoMessage(message: string, duration: number = 5000) {
+    displayMessage(`❕ ${message}`);
 }
 
 function getEditableProfile() {
@@ -41,7 +48,7 @@ function getEditableProfile() {
         bio: user.value?.profile.bio,
         firstName: user.value?.profile.firstName || '',
         lastName: user.value?.profile.lastName || '',
-        profilePicture: user.value?.profile.profilePicture,
+        profilePicture: user.value?.profile.profilePicture as string || null,
     };
 }
 const editableProfile = ref<ReturnType<typeof getEditableProfile> | null>(getEditableProfile());
@@ -130,6 +137,11 @@ watch(user, () => {
     console.log('User changed:', user.value);
     if (user.value) editableProfile.value = getEditableProfile();
     else editableProfile.value = null;
+
+    // recommend profile picture update if no profile picture is set
+    if (user.value && !user.value.profile.profilePicture) {
+        displayInfoMessage('Setting a profile picture is recommended', 10_000);
+    }
 })
 
 </script>
@@ -139,7 +151,7 @@ watch(user, () => {
         <div v-if="isEditable || (refs.canEdit.value && isLoading)">
             <div class="tw-flex tw-flex-row tw-justify-between tw-gap-2">
                 <div>
-                    <p id="edit_error_message"></p>
+                    <p class="tw-text-sm tw-text-muted-foreground" id="edit_error_message"></p>
                 </div>
                 <div class="tw-flex tw-flex-row tw-gap-2 tw-items-center">
                     <Button variant="secondary" size="sm" @click="isEditing ? handleCancelEdit() : handleStartEdit()">
@@ -158,9 +170,9 @@ watch(user, () => {
         <div>
             <!-- FIRST ROW -->
             <div class="tw-flex tw-flex-row tw-justify-between tw-flex-wrap tw-flex-gap-8">
-                <ProfileSnippet :overwrite-avatar="editableProfile?.profilePicture"
+                <ProfileSnippet :overwrite-avatar="editableProfile?.profilePicture || undefined"
                     :overwrite-name="`${editableProfile?.firstName} ${editableProfile?.lastName}`" class="tw-my-4" />
-                <div class="tw-flex tw-flex-row tw-gap-4 tw-items-center">
+                <div class="tw-flex tw-flex-row tw-gap-4 tw-items-center tw-mb-4">
                     <!-- CTAs -->
                     <Button variant="primary" size="lg">
                         <BriefcaseBusiness class="tw-w-6 tw-h-6 tw-mr-2 tw-mt-0.5" />
@@ -186,16 +198,28 @@ watch(user, () => {
                         placeholder="Not Logged In" />
                 </div>
 
-                <!-- Update Profile Picture -->
-                <Button v-if="editableProfile" variant="secondary" size="sm" @click="handleProfilePictureUpdateClick">
-                    <div class="tw-flex tw-flex-row tw-items-center">
-                        <ImagePlus class="tw-w-4 tw-h-4 tw-mr-2" />
-                        Update Profile Pic
-                    </div>
-                </Button>
-                <Button v-else-if="!editableProfile" variant="secondary" size="sm" disabled>
-                    Update Profile Picture
-                </Button>
+                <div class="tw-relative tw-flex tw-flex-row tw-flex-wrap tw-gap-2 tw-items-center tw-max-w-96 tw-mb-4">
+                    <!-- Update Profile Picture -->
+                    <Button v-if="editableProfile" variant="success" outline size="sm"
+                        @click="handleProfilePictureUpdateClick">
+                        <div class="tw-flex tw-flex-row tw-items-center">
+                            <ImagePlus class="tw-w-4 tw-h-4 tw-mr-2" />
+                            Update Avatar
+                        </div>
+                    </Button>
+                    <Button v-else-if="!editableProfile" variant="success" outline size="sm" disabled>
+                        Update Avatar
+                    </Button>
+
+                    <!-- Remove profile picture -->
+                    <Button v-if="editableProfile?.profilePicture" variant="destructive" outline size="sm"
+                        @click="editableProfile.profilePicture = null">
+                        <div class="tw-flex tw-flex-row tw-items-center">
+                            <ImageMinus class="tw-w-4 tw-h-4 tw-mr-2" />
+                            Remove Avatar
+                        </div>
+                    </Button>
+                </div>
             </div>
 
             <br />

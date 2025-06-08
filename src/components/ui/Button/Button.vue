@@ -29,6 +29,10 @@ const variantList = {
     ghost: {
         base: "tw-bg-transparent hover:tw-bg-zinc-800/20",
         outline: "tw-bg-transparent hover:tw-bg-zinc-800/20 tw-border tw-border-solid tw-border-muted tw-text-muted hover:tw-text-white",
+    },
+    destructive: {
+        base: "tw-bg-destructive hover:tw-bg-destructive/90",
+        outline: "tw-bg-zinc-800/20 hover:tw-bg-destructive/90 tw-border tw-border-solid tw-border-destructive tw-text-destructive hover:tw-text-white",
     }
 }
 
