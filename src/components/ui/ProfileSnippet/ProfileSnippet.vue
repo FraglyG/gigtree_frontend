@@ -7,7 +7,7 @@ import { computed } from 'vue';
 const { user, isLoading, isOffline } = useGetUser();
 
 const props = defineProps<{
-    overwriteAvatar?: string;
+    overwriteAvatar?: string | null;
     overwriteName?: string;
     overwriteUsername?: string;
 }>();
@@ -23,7 +23,7 @@ const username = computed(() => {
 });
 
 const profilePicture = computed(() => {
-    if (props.overwriteAvatar) return props.overwriteAvatar;
+    if (props.overwriteAvatar !== undefined) return props.overwriteAvatar;
     return user.value?.profile.profilePicture || '';
 });
 
@@ -31,7 +31,7 @@ const profilePicture = computed(() => {
 
 <template>
     <div class="tw-flex tw-flex-row tw-flex-wrap tw-gap-2 sm:tw-gap-4">
-        <Avatar :size-px="56" :src="profilePicture" />
+        <Avatar :size-px="56" :src="profilePicture || undefined" />
 
         <div class="tw-w-fit tw-flex tw-flex-col tw-justify-start">
             <div v-if="isLoading" class="tw-flex tw-flex-row tw-gap-2">

@@ -5,26 +5,92 @@ import Skeleton from '@/components/ui/Skeleton/Skeleton.vue';
 import { useGetUser } from '@/composables/getUser';
 import { computed, ref, toRefs, watch } from 'vue';
 import { Button } from '@/components/ui/Button';
-import { BriefcaseBusiness, ImageMinus, ImagePlus } from 'lucide-vue-next';
+import { BriefcaseBusiness, ImageMinus, ImagePlus, Mail } from 'lucide-vue-next';
 import { TextArea } from '@/components/ui/TextArea';
 import { api } from '@/lib/api';
 import { Input } from '@/components/ui/Input';
 import StorageApi, { StorageApiError, useFileStorage } from '@/composables/fileStorage';
+import { useMessenger } from '@/composables/messanger';
 
 
 const props = withDefaults(defineProps<{
     canEdit?: boolean;
     class?: string;
+    userId?: string;
 }>(), {
     canEdit: false
 });
 
 const refs = toRefs(props);
 
-const { user, isLoading, isOffline } = useGetUser();
+const { user: currentUser, isLoading: isCurrentUserLoading, isOffline } = useGetUser();
 const { triggerUpload } = useFileStorage();
 
-const isEditable = computed(() => !isLoading.value && !isOffline.value && user.value && refs.canEdit.value);
+// State for public profile
+const publicUser = ref<User | null>(null);
+const isLoadingPublicUser = ref(false);
+const publicUserError = ref<string | null>(null);
+
+// Check URL parameters for userId
+const urlUserId = ref<string | null>(null);
+if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlUserId.value = urlParams.get('user');
+}
+
+// Determine which user to display
+const targetUserId = computed(() => props.userId || urlUserId.value);
+const isViewingOtherUser = computed(() => !!targetUserId.value);
+const user = computed(() => isViewingOtherUser.value ? publicUser.value : currentUser.value);
+const isLoading = computed(() => {
+    if (isViewingOtherUser.value) {
+        return isLoadingPublicUser.value;
+    }
+    return isCurrentUserLoading.value;
+});
+
+// Fetch public user if needed
+async function fetchPublicUser(userId: string) {
+    if (!userId) return;
+
+    isLoadingPublicUser.value = true;
+    publicUserError.value = null;
+
+    try {
+        const response = await api.request(`/api/public/user?userId=${userId}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch user profile: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to fetch user profile');
+        }
+
+        publicUser.value = result.user;
+    } catch (error) {
+        console.error('Error fetching public user:', error);
+        publicUserError.value = error instanceof Error ? error.message : 'Failed to load user profile';
+    } finally {
+        isLoadingPublicUser.value = false;
+    }
+}
+
+// Watch for userId changes and fetch accordingly
+watch(targetUserId, (newUserId) => {
+    if (newUserId) {
+        fetchPublicUser(newUserId);
+    } else {
+        publicUser.value = null;
+        publicUserError.value = null;
+    }
+}, { immediate: true });
+
+const isEditable = computed(() => {
+    return !isLoading.value && !isOffline.value && user.value && refs.canEdit.value && !isViewingOtherUser.value
+        ? true : false;
+});
+
 const isEditing = ref(false);
 
 function displayMessage(message: string, duration: number = 5000) {
@@ -91,7 +157,10 @@ async function handleSaveEdit() {
             return;
         }
 
-        user.value?.update(result.user);
+        // Update user only if it's the current user (has update method)
+        if (!isViewingOtherUser.value && currentUser.value?.update) {
+            currentUser.value.update(result.user);
+        }
     } catch (e) {
         console.error('Failed to update profile:', e);
         revertEditableProfile();
@@ -138,22 +207,45 @@ watch(user, () => {
     if (user.value) editableProfile.value = getEditableProfile();
     else editableProfile.value = null;
 
-    // recommend profile picture update if no profile picture is set
-    if (user.value && !user.value.profile.profilePicture) {
+    // recommend profile picture update if no profile picture is set (only for current user)
+    if (user.value && !user.value.profile.profilePicture && !isViewingOtherUser.value) {
         displayInfoMessage('Setting a profile picture is recommended', 10_000);
     }
 })
+
+const { createChannel } = useMessenger();
+
+async function handleTalkClick() {
+    if (!currentUser.value) {
+        displayErrorMessage('Please log in to chat with users.');
+        return;
+    }
+
+    const userId = isViewingOtherUser.value ? targetUserId.value : undefined;
+    if (!userId) {
+        displayErrorMessage('No user to chat with.');
+        return;
+    }
+
+    const result = await createChannel(userId);
+    if (result && result.channel) {
+        window.location.href = `${window.location.origin}/inbox?channel=${result.channel.channelId}`;
+    } else {
+        console.error('Failed to create or navigate to channel');
+        displayErrorMessage('Failed to create chat channel. ' + (result.error || 'Please try again later.'));
+    }
+}
 
 </script>
 
 <template>
     <div :class="[refs.class]">
-        <div v-if="isEditable || (refs.canEdit.value && isLoading)">
+        <div>
             <div class="tw-flex tw-flex-row tw-justify-between tw-gap-2">
                 <div>
                     <p class="tw-text-sm tw-text-muted-foreground" id="edit_error_message"></p>
                 </div>
-                <div class="tw-flex tw-flex-row tw-gap-2 tw-items-center">
+                <div v-if="isEditable || (canEdit && isLoading)" class="tw-flex tw-flex-row tw-gap-2 tw-items-center">
                     <Button variant="secondary" size="sm" @click="isEditing ? handleCancelEdit() : handleStartEdit()">
                         {{ isEditing ? 'Cancel' : 'Edit' }}
                     </Button>
@@ -163,20 +255,28 @@ watch(user, () => {
                 </div>
             </div>
 
-            <hr class="tw-my-4" />
+            <hr v-if="isEditable || (refs.canEdit.value && isLoading)" class="tw-my-4" />
+        </div>
+
+        <!-- Error display for public user fetch -->
+        <div v-if="publicUserError"
+            class="tw-bg-destructive/10 tw-border tw-border-destructive tw-rounded-md tw-p-4 tw-mb-4">
+            <p class="tw-text-destructive tw-text-sm">{{ publicUserError }}</p>
         </div>
 
         <!-- PROFILE -->
         <div>
             <!-- FIRST ROW -->
             <div class="tw-flex tw-flex-row tw-justify-between tw-flex-wrap tw-flex-gap-8">
-                <ProfileSnippet :overwrite-avatar="editableProfile?.profilePicture || undefined"
-                    :overwrite-name="`${editableProfile?.firstName} ${editableProfile?.lastName}`" class="tw-my-4" />
+                <ProfileSnippet :overwrite-username="user?.username"
+                    :overwrite-avatar="(isEditing ? (editableProfile?.profilePicture || null) : (user?.profile.profilePicture || null))"
+                    :overwrite-name="isEditing ? `${editableProfile?.firstName} ${editableProfile?.lastName}` : `${user?.profile.firstName} ${user?.profile.lastName}`"
+                    class="tw-my-4" />
                 <div class="tw-flex tw-flex-row tw-gap-4 tw-items-center tw-mb-4">
                     <!-- CTAs -->
-                    <Button variant="primary" size="lg">
-                        <BriefcaseBusiness class="tw-w-6 tw-h-6 tw-mr-2 tw-mt-0.5" />
-                        Hire
+                    <Button variant="information" outline size="lg" @click="handleTalkClick">
+                        <Mail class="tw-w-6 tw-h-6 tw-mr-2 tw-mt-0.5" />
+                        Contact
                     </Button>
                 </div>
             </div>
@@ -235,12 +335,12 @@ watch(user, () => {
                         placeholder="Unable to fetch user's bio due to connection issues..." :rows="3"
                         :disabled="!isEditable" />
                     <TextArea v-else-if="isEditing && editableProfile" v-model="editableProfile.bio"
-                        class="tw-max-w-96 tw-mt-1" />
-                    <TextArea v-else-if="isEditing && !editableProfile" class="tw-max-w-96 tw-mt-1" readonly
+                        class="tw-max-w-96 tw-mt-1" /> <TextArea v-else-if="isEditing && !editableProfile"
+                        class="tw-max-w-96 tw-mt-1" readonly
                         placeholder="Please make sure you're logged in to edit your profile" :rows="3"
                         :disabled="!isEditable" />
                     <p v-else class="tw-text-muted-foreground tw-mt-1 tw-max-w-[60ch]">
-                        {{ editableProfile?.bio || "No bio available" }}
+                        {{ (isEditing ? editableProfile?.bio : user?.profile.bio) || "No bio available" }}
                     </p>
                 </div>
             </div>

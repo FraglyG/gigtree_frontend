@@ -1,11 +1,16 @@
 ---
 import MainLayout from "@/layouts/MainLayout.astro";
+import UserProfile from "@/components/main/profile/profile.vue";
+import { Card, CardBody } from "@/components/ui/Card";
+
 ---
 
 <MainLayout>
+	<Card class="tw-max-w-3xl tw-mx-auto tw-mt-10">
+		<CardBody class="tw-p-6">
+			<UserProfile client:load canEdit={false} />
+		</CardBody>
+	</Card>
 </MainLayout>
 
-<style>
-</style>
-
-
+<style></style>
