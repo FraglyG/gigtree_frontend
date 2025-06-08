@@ -149,7 +149,7 @@ async function saveUser() {
       username: editForm.value.username,
       primaryEmail: editForm.value.primaryEmail,
       emailVerified: editForm.value.emailVerified,
-      profile: editForm.value.profile
+      profile: editForm.value.profile || undefined,
     };
 
     await adminApi.updateUser(selectedUser.value.userId, updates);
