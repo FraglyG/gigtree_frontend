@@ -105,7 +105,7 @@ async function handleEditSave() {
 }
 
 watch(listing, (newListing) => {
-    getEditableListing()
+    editableListing.value = getEditableListing()
 }, { immediate: true });
 
 async function handleImageButtonClick() {
