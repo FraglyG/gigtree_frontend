@@ -4,7 +4,7 @@ import { Photo, PhotoFallback, PhotoLoading } from '../Photo';
 import { Skeleton } from '../Skeleton';
 import ImageLoadFail from "@/assets/image_load_fail.svg";
 import { Button } from '@/components/ui/Button';
-import { BriefcaseBusiness, User } from 'lucide-vue-next';
+import { BriefcaseBusiness, Mail, User } from 'lucide-vue-next';
 import { api } from '@/lib/api';
 import { useMessenger } from '@/composables/messanger';
 
@@ -23,7 +23,7 @@ function createColorFromUsername(username: string): string {
 
 const { createChannel } = useMessenger();
 
-async function handleHireClick() {
+async function handleTalkClick() {
     const result = await createChannel(props.userId);
     if (result && result.channel) {
         window.location.href = `${window.location.origin}/inbox?channel=${result.channel.channelId}`;
@@ -31,6 +31,11 @@ async function handleHireClick() {
         console.error('Failed to create or navigate to channel');
     }
 }
+
+async function handleProfileClick() {
+    window.location.href = `${window.location.origin}/profile?user=${props.userId}`;
+}
+
 </script>
 
 <template>
@@ -64,15 +69,19 @@ async function handleHireClick() {
             <p class="tw-text-sm tw-text-muted-foreground">{{ description }}</p>
         </CardBody> -->
 
-        <CardFooter class="tw-p-5 tw-pt-2">
-            <Button size="sm" variant="primary" @click="handleHireClick">
+        <CardFooter class="tw-p-5 tw-pt-2 tw-mt-auto tw-flex tw-flex-row-reverse tw-gap-2">
+            <Button size="sm" variant="information" outline @click="handleTalkClick">
                 <div>
-                    <!-- <User class="tw-w-4 tw-h-4 tw-inline-block tw-mr-1 tw-mb-0.5" /> -->
-                    <BriefcaseBusiness class="tw-w-4 tw-h-4 tw-inline-block tw-mr-1 tw-mb-0.5" />
-                    <span class="tw-text-sm">Hire</span>
+                    <Mail class="tw-w-4 tw-h-4 tw-inline-block tw-mr-1 tw-mb-0.5" />
+                    <span class="tw-text-sm">Contact</span>
                 </div>
             </button>
-            <!-- <Button class="btn btn-secondary">Secondary Action</button> -->
+            <Button size="sm" variant="primary" outline @click="handleProfileClick">
+                <div>
+                    <User class="tw-w-4 tw-h-4 tw-inline-block tw-mr-1 tw-mb-0.5" />
+                    <span class="tw-text-sm">Profile</span>
+                </div>
+            </button>
         </CardFooter>
     </Card>
 </template>

@@ -238,6 +238,9 @@ onMounted(() => {
                     <Skeleton class="tw-w-full tw-h-[100px] tw-rounded" />
                     <Skeleton class="tw-w-3/4 tw-h-4 tw-rounded" />
                     <Skeleton class="tw-w-1/2 tw-h-3 tw-rounded" />
+                    <Skeleton class="tw-w-3/5 tw-h-3 tw-rounded" />
+                    <br />
+                    <Skeleton class="tw-w-28 tw-h-6 tw-rounded tw-ml-auto" />
                 </div>
             </Card>
         </div>
