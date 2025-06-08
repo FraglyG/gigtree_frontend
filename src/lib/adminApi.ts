@@ -114,6 +114,15 @@ export interface MutedUser {
     expiresAt?: string;
 }
 
+export interface JobListingBannedUser {
+    id: string;
+    user: AdminUser;
+    reason: string;
+    bannedBy: AdminUser;
+    bannedAt: string;
+    expiresAt?: string;
+}
+
 export interface DashboardOverview {
     totals: {
         users: number;
@@ -575,7 +584,7 @@ export class AdminApiClient {
         sort?: "asc" | "desc";
         sortBy?: "bannedAt" | "username" | "primaryEmail";
         includeExpired?: boolean;
-    }): Promise<{ users: any[] }> {
+    }): Promise<{ users: JobListingBannedUser[] }> {
         const searchParams = new URLSearchParams();
         if (params) {
             Object.entries(params).forEach(([key, value]) => {

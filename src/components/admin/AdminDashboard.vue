@@ -113,7 +113,7 @@ function setActiveTab(tabId: string) {
     <!-- Navigation Tabs -->
     <div class="tw-bg-card tw-border-b tw-border-border">
       <div class="tw-max-w-7xl tw-mx-auto tw-px-4 tw-sm:px-6 tw-lg:px-8">
-        <nav class="tw-flex tw-flex-wrap tw-space-x-8" aria-label="Tabs">
+        <nav class="tw-flex tw-flex-wrap tw-gap-x-8" aria-label="Tabs">
           <button v-for="tab in tabs" :key="tab.id" @click="setActiveTab(tab.id)" :class="[
             'tw-flex tw-items-center tw-py-4 tw-px-1 tw-border-b-2 tw-font-medium tw-text-sm',
             activeTab === tab.id

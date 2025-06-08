@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { adminApi, type ModerationAction, type BannedUser, type MutedUser, type AdminUser } from '@/lib/adminApi';
+import { adminApi, type ModerationAction, type BannedUser, type MutedUser, type JobListingBannedUser, type AdminUser } from '@/lib/adminApi';
 import { DataTable } from '@/components/ui/DataTable';
 import { Pagination } from '@/components/ui/Pagination';
 import { Modal } from '@/components/ui/Modal';
@@ -9,6 +9,7 @@ import { Ban, MessageSquareX } from 'lucide-vue-next';
 
 const bannedUsers = ref<BannedUser[]>([]);
 const mutedUsers = ref<MutedUser[]>([]);
+const jobListingBannedUsers = ref<JobListingBannedUser[]>([]);
 const searchResults = ref<AdminUser[]>([]);
 const searchQuery = ref('');
 const showSearchResults = ref(false);
@@ -21,6 +22,7 @@ const success = ref<string | null>(null);
 // Modals
 const showBanUserModal = ref(false);
 const showMuteUserModal = ref(false);
+const showJobListingBanUserModal = ref(false);
 const showActionModal = ref(false);
 const selectedAction = ref<ModerationAction | null>(null);
 
@@ -39,6 +41,14 @@ const muteUserForm = ref({
   email: '',
   reason: '',
   duration: '2' // hours
+});
+
+const jobListingBanUserForm = ref({
+  userId: '',
+  username: '',
+  email: '',
+  reason: '',
+  duration: '24' // hours
 });
 
 // Pagination
@@ -79,6 +89,14 @@ const mutedUserColumns = [
   { key: 'actions', title: 'Actions', label: 'Actions', sortable: false }
 ];
 
+const jobListingBannedUserColumns = [
+  { key: 'user', title: 'User', label: 'User', sortable: true },
+  { key: 'reason', title: 'Reason', label: 'Reason', sortable: false },
+  { key: 'bannedAt', title: 'Banned At', label: 'Banned At', sortable: true },
+  { key: 'expiresAt', title: 'Expires', label: 'Expires', sortable: true },
+  { key: 'actions', title: 'Actions', label: 'Actions', sortable: false }
+];
+
 async function loadBannedUsers() {
   loading.value = true;
   error.value = null;
@@ -104,6 +122,21 @@ async function loadMutedUsers() {
   } catch (err) {
     error.value = 'Failed to load muted users';
     console.error('Error loading muted users:', err);
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function loadJobListingBannedUsers() {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const response = await adminApi.getJobListingBannedUsers();
+    jobListingBannedUsers.value = response.users;
+  } catch (err) {
+    error.value = 'Failed to load job listing banned users';
+    console.error('Error loading job listing banned users:', err);
   } finally {
     loading.value = false;
   }
@@ -167,6 +200,36 @@ async function muteUser() {
   }
 }
 
+async function jobListingBanUser() {
+  if (!jobListingBanUserForm.value.userId || !jobListingBanUserForm.value.reason) {
+    error.value = 'User ID and reason are required';
+    return;
+  }
+
+  loading.value = true;
+  error.value = null;
+  success.value = null;
+
+  try {
+    await adminApi.jobListingBanUser(
+      jobListingBanUserForm.value.userId,
+      jobListingBanUserForm.value.reason,
+      parseInt(jobListingBanUserForm.value.duration)
+    );
+    success.value = 'User banned from job listings successfully';
+    showJobListingBanUserModal.value = false;
+    jobListingBanUserForm.value = { userId: '', username: '', email: '', reason: '', duration: '24' };
+
+    // Reload data
+    await loadJobListingBannedUsers();
+  } catch (err) {
+    error.value = 'Failed to ban user from job listings';
+    console.error('Error banning user from job listings:', err);
+  } finally {
+    loading.value = false;
+  }
+}
+
 async function unbanUser(userId: string) {
   if (!confirm('Are you sure you want to unban this user?')) return;
 
@@ -204,6 +267,27 @@ async function unmuteUser(userId: string) {
   } catch (err) {
     error.value = 'Failed to unmute user';
     console.error('Error unmuting user:', err);
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function jobListingUnbanUser(userId: string) {
+  if (!confirm('Are you sure you want to remove the job listing ban from this user?')) return;
+
+  loading.value = true;
+  error.value = null;
+  success.value = null;
+
+  try {
+    await adminApi.jobListingUnbanUser(userId);
+    success.value = 'User job listing ban removed successfully';
+
+    // Reload data
+    await loadJobListingBannedUsers();
+  } catch (err) {
+    error.value = 'Failed to remove job listing ban';
+    console.error('Error removing job listing ban:', err);
   } finally {
     loading.value = false;
   }
@@ -277,7 +361,7 @@ async function searchUsers() {
   }, 300); // 300ms debounce
 }
 
-function selectUserForAction(user: AdminUser, action: 'ban' | 'mute') {
+function selectUserForAction(user: AdminUser, action: 'ban' | 'mute' | 'job-listing-ban') {
   if (action === 'ban') {
     banUserForm.value.userId = user.userId;
     banUserForm.value.username = user.username;
@@ -288,6 +372,11 @@ function selectUserForAction(user: AdminUser, action: 'ban' | 'mute') {
     muteUserForm.value.username = user.username;
     muteUserForm.value.email = user.primaryEmail;
     showMuteUserModal.value = true;
+  } else if (action === 'job-listing-ban') {
+    jobListingBanUserForm.value.userId = user.userId;
+    jobListingBanUserForm.value.username = user.username;
+    jobListingBanUserForm.value.email = user.primaryEmail;
+    showJobListingBanUserModal.value = true;
   }
 
   // Clear search
@@ -318,6 +407,10 @@ function clearMuteForm() {
   muteUserForm.value = { userId: '', username: '', email: '', reason: '', duration: '2' };
 }
 
+function clearJobListingBanForm() {
+  jobListingBanUserForm.value = { userId: '', username: '', email: '', reason: '', duration: '24' };
+}
+
 function clearMessages() {
   error.value = null;
   success.value = null;
@@ -326,6 +419,7 @@ function clearMessages() {
 onMounted(() => {
   loadBannedUsers();
   loadMutedUsers();
+  loadJobListingBannedUsers();
 });
 </script>
 
@@ -333,12 +427,17 @@ onMounted(() => {
   <div class="tw-space-y-6">
     <!-- Header -->
     <div class="tw-flex tw-justify-between tw-items-center">
-      <h2 class="tw-text-2xl tw-font-bold tw-text-foreground">Moderation Tools</h2>
-      <div class="tw-flex tw-space-x-3">
+      <h2 class="tw-text-2xl tw-font-bold tw-text-foreground">Moderation Tools</h2>      <div class="tw-flex tw-space-x-3">
         <Button @click="showMuteUserModal = true; clearMessages();" variant="secondary" outline>
           <div>
             <MessageSquareX class="tw-inline-block tw-w-5 tw-h-5 tw-mr-2 tw-mb-0.5" />
             <span>Mute</span>
+          </div>
+        </Button>
+        <Button @click="showJobListingBanUserModal = true; clearMessages();" variant="secondary" outline>
+          <div>
+            <Ban class="tw-inline-block tw-w-5 tw-h-5 tw-mr-2 tw-mb-0.5" />
+            <span>Job Ban</span>
           </div>
         </Button>
         <Button @click="showBanUserModal = true; clearMessages();" variant="destructive" outline>
@@ -443,14 +542,17 @@ onMounted(() => {
                   <div class="tw-flex-1">
                     <div class="tw-flex tw-items-center tw-space-x-2">
                       <div class="tw-text-sm tw-font-medium tw-text-foreground">{{ user.username }}</div>
-                      <!-- Moderation Status Badges -->
-                      <span v-if="user.moderation?.ban?.isBanned"
+                      <!-- Moderation Status Badges -->                      <span v-if="user.moderation?.ban?.isBanned"
                         class="tw-px-1.5 tw-py-0.5 tw-text-xs tw-bg-destructive/10 tw-text-destructive tw-rounded">
                         Banned
                       </span>
                       <span v-if="user.moderation?.muted?.isMuted"
                         class="tw-px-1.5 tw-py-0.5 tw-text-xs tw-bg-warning/10 tw-text-warning tw-rounded">
                         Muted
+                      </span>
+                      <span v-if="user.moderation?.jobListingBan?.isBanned"
+                        class="tw-px-1.5 tw-py-0.5 tw-text-xs tw-bg-orange-100 tw-text-orange-800 tw-rounded">
+                        Job Banned
                       </span>
                     </div>
                     <div class="tw-text-xs tw-text-muted-foreground">{{ user.primaryEmail }}</div>
@@ -465,9 +567,7 @@ onMounted(() => {
                   <button v-else @click="selectUserForAction(user, 'mute')"
                     class="tw-px-2 tw-py-1 tw-text-xs tw-font-medium tw-text-warning-foreground tw-bg-warning tw-rounded hover:tw-bg-warning/90">
                     Mute
-                  </button>
-
-                  <!-- Ban/Unban Button -->
+                  </button>                  <!-- Ban/Unban Button -->
                   <button v-if="user.moderation?.ban?.isBanned" @click="unbanUser(user.userId)"
                     class="tw-px-2 tw-py-1 tw-text-xs tw-font-medium tw-text-success-foreground tw-bg-success tw-rounded hover:tw-bg-success/90">
                     Unban
@@ -475,6 +575,16 @@ onMounted(() => {
                   <button v-else @click="selectUserForAction(user, 'ban')"
                     class="tw-px-2 tw-py-1 tw-text-xs tw-font-medium tw-text-destructive-foreground tw-bg-destructive tw-rounded hover:tw-bg-destructive/90">
                     Ban
+                  </button>
+
+                  <!-- Job Listing Ban/Unban Button -->
+                  <button v-if="user.moderation?.jobListingBan?.isBanned" @click="jobListingUnbanUser(user.userId)"
+                    class="tw-px-2 tw-py-1 tw-text-xs tw-font-medium tw-text-success-foreground tw-bg-success tw-rounded hover:tw-bg-success/90">
+                    Unjob Ban
+                  </button>
+                  <button v-else @click="selectUserForAction(user, 'job-listing-ban')"
+                    class="tw-px-2 tw-py-1 tw-text-xs tw-font-medium tw-text-orange-800 tw-bg-orange-200 tw-rounded hover:tw-bg-orange-300">
+                    Job Ban
                   </button>
                 </div>
               </div>
@@ -579,15 +689,59 @@ onMounted(() => {
           ]">
             {{ row.muteInfo.unmutedAt ? formatDate(row.muteInfo.unmutedAt) : 'Permanent' }}
           </span>
-        </template>
-
-        <template #cell-actions="{ row }">
+        </template>        <template #cell-actions="{ row }">
           <button @click="unmuteUser(row.userId)" class="tw-text-success hover:tw-underline tw-text-sm tw-font-medium">
             Unmute
           </button>
         </template>
       </DataTable>
-    </div> <!-- Ban User Modal -->
+    </div>
+
+    <!-- Job Listing Banned Users -->
+    <div class="tw-bg-card tw-rounded-lg tw-shadow">
+      <div class="tw-px-6 tw-py-4 tw-border-b tw-border-border">
+        <h3 class="tw-text-lg tw-font-medium tw-text-foreground">Job Listing Banned Users</h3>
+      </div>
+
+      <DataTable :columns="jobListingBannedUserColumns" :data="jobListingBannedUsers" :loading="loading" @sort="(column, order) => { }">
+        <template #cell-user="{ row }">
+          <div class="tw-flex tw-items-center">
+            <div class="tw-w-8 tw-h-8 tw-bg-muted tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mr-3">
+              <span class="tw-text-xs tw-font-medium tw-text-muted-foreground">
+                {{ row.username.charAt(0).toUpperCase() }}
+              </span>
+            </div>
+            <div>
+              <div class="tw-text-sm tw-font-medium tw-text-foreground">{{ row.username }}</div>
+              <div class="tw-text-sm tw-text-muted-foreground">{{ row.email }}</div>
+            </div>
+          </div>
+        </template>
+
+        <template #cell-reason="{ row }">
+          <span class="tw-text-sm tw-text-foreground">{{ row.jobListingBanInfo.banReason || 'No reason provided' }}</span>
+        </template>
+
+        <template #cell-bannedAt="{ row }">
+          <span class="tw-text-sm tw-text-muted-foreground">{{ formatDate(row.jobListingBanInfo.bannedAt) }}</span>
+        </template>
+
+        <template #cell-expiresAt="{ row }">
+          <span :class="[
+            'tw-text-sm',
+            isExpired(row.jobListingBanInfo.unbannedAt) ? 'tw-text-destructive' : 'tw-text-muted-foreground'
+          ]">
+            {{ row.jobListingBanInfo.unbannedAt ? formatDate(row.jobListingBanInfo.unbannedAt) : 'Permanent' }}
+          </span>
+        </template>
+
+        <template #cell-actions="{ row }">
+          <button @click="jobListingUnbanUser(row.userId)" class="tw-text-success hover:tw-underline tw-text-sm tw-font-medium">
+            Remove Job Ban
+          </button>
+        </template>
+      </DataTable>
+    </div><!-- Ban User Modal -->
     <Modal :show="showBanUserModal" @close="showBanUserModal = false; clearMessages();" title="Ban User">
       <form @submit.prevent="banUser" class="tw-space-y-4"> <!-- Selected User Info -->
         <div v-if="banUserForm.username" class="tw-p-3 tw-bg-muted tw-rounded-md">
@@ -707,9 +861,7 @@ onMounted(() => {
             <option value="72">3 days</option>
             <option value="168">1 week</option>
           </select>
-        </div>
-
-        <div class="tw-flex tw-justify-end tw-space-x-3 tw-pt-4">
+        </div>        <div class="tw-flex tw-justify-end tw-space-x-3 tw-pt-4">
           <button type="button" @click="showMuteUserModal = false; clearMessages();"
             class="tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-muted-foreground tw-bg-muted tw-rounded-md hover:tw-bg-muted/80">
             Cancel
@@ -717,6 +869,74 @@ onMounted(() => {
           <button type="submit" :disabled="loading"
             class="tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-warning-foreground tw-bg-warning tw-rounded-md hover:tw-bg-warning/90 disabled:tw-opacity-50">
             {{ loading ? 'Muting...' : 'Mute User' }}
+          </button>
+        </div>
+      </form>
+    </Modal>
+
+    <!-- Job Listing Ban User Modal -->
+    <Modal :show="showJobListingBanUserModal" @close="showJobListingBanUserModal = false; clearMessages();" title="Ban User from Job Listings">
+      <form @submit.prevent="jobListingBanUser" class="tw-space-y-4">
+        <!-- Selected User Info -->
+        <div v-if="jobListingBanUserForm.username" class="tw-p-3 tw-bg-muted tw-rounded-md">
+          <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
+            <h4 class="tw-text-sm tw-font-medium tw-text-foreground">Selected User:</h4>
+            <button type="button" @click="clearJobListingBanForm"
+              class="tw-text-xs tw-text-muted-foreground hover:tw-text-foreground">
+              Clear
+            </button>
+          </div>
+          <div class="tw-flex tw-items-center">
+            <div class="tw-w-8 tw-h-8 tw-bg-primary tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mr-3">
+              <span class="tw-text-xs tw-font-medium tw-text-primary-foreground">
+                {{ jobListingBanUserForm.username.charAt(0).toUpperCase() }}
+              </span>
+            </div>
+            <div>
+              <div class="tw-text-sm tw-font-medium tw-text-foreground">{{ jobListingBanUserForm.username }}</div>
+              <div class="tw-text-xs tw-text-muted-foreground">{{ jobListingBanUserForm.email }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="tw-block tw-text-sm tw-font-medium tw-text-muted-foreground tw-mb-1">
+            User ID
+          </label>
+          <input v-model="jobListingBanUserForm.userId" type="text" required placeholder="Enter user ID to ban from job listings"
+            class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-border tw-bg-background tw-text-foreground tw-rounded-md tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-primary" />
+        </div>
+
+        <div>
+          <label class="tw-block tw-text-sm tw-font-medium tw-text-muted-foreground tw-mb-1">
+            Reason
+          </label>
+          <textarea v-model="jobListingBanUserForm.reason" required rows="3" placeholder="Reason for job listing ban"
+            class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-border tw-bg-background tw-text-foreground tw-rounded-md tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-primary"></textarea>
+        </div>
+
+        <div>
+          <label class="tw-block tw-text-sm tw-font-medium tw-text-muted-foreground tw-mb-1">
+            Duration (hours)
+          </label>
+          <select v-model="jobListingBanUserForm.duration"
+            class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-border tw-bg-background tw-text-foreground tw-rounded-md tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-primary">
+            <option value="24">24 hours</option>
+            <option value="72">3 days</option>
+            <option value="168">1 week</option>
+            <option value="720">1 month</option>
+            <option value="8760">1 year</option>
+          </select>
+        </div>
+
+        <div class="tw-flex tw-justify-end tw-space-x-3 tw-pt-4">
+          <button type="button" @click="showJobListingBanUserModal = false; clearMessages();"
+            class="tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-muted-foreground tw-bg-muted tw-rounded-md hover:tw-bg-muted/80">
+            Cancel
+          </button>
+          <button type="submit" :disabled="loading"
+            class="tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-orange-800 tw-bg-orange-200 tw-rounded-md hover:tw-bg-orange-300 disabled:tw-opacity-50">
+            {{ loading ? 'Banning...' : 'Ban from Job Listings' }}
           </button>
         </div>
       </form>

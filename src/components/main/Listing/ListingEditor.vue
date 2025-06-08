@@ -42,7 +42,7 @@ const cardTitle = computed(() => {
 
 const errorMessage = ref<string | null>(null);
 const isEditing = ref(false);
-const isEditable = computed(() => !isLoading.value && !isOffline.value && user.value && !isEditing.value);
+const isEditable = computed(() => !isLoading.value && !isOffline.value && user.value && !isEditing.value && !user.value?.moderation?.jobListingBan?.isBanned);
 
 function displayErrorMessage(message: string, duration: number = 5000) {
     const displayMessage = `⚠ ${message}`;
@@ -126,6 +126,17 @@ async function handleImageButtonClick() {
     });
 }
 
+function formatDate(dateString: string | Date) {
+    const date = typeof dateString === "string" ? new Date(dateString) : dateString;
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
 </script>
 
 <template>
@@ -156,11 +167,13 @@ async function handleImageButtonClick() {
         <Card v-if="user?.moderation?.jobListingBan?.isBanned">
             <CardBody class="tw-p-4">
                 <p class="tw-text-muted-foreground tw-font-semibold tw-text-md">Whoops..</p>
-                <p class="tw-text-muted-foreground tw-text-sm">You were banned from making job lists</p>
-                <p class="tw-text-muted-foreground tw-text-sm">Reason: {{ user.moderation.jobListingBan.banReason ||
+                <p class="tw-text-muted-foreground tw-text-sm">You were banned from making job listings.</p>
+                <p class="tw-text-muted-foreground tw-text-sm tw-my-2">Reason: {{
+                    user.moderation.jobListingBan.banReason ||
                     "Undisclosed reason" }}</p>
                 <p class="tw-text-muted-foreground tw-text-sm">{{ user.moderation.jobListingBan.unbannedAt ? `You'll be
-                    unbanned at: ${user.moderation.jobListingBan.unbannedAt}` : "This ban is permanent." }}</p>
+                    unbanned on: ${formatDate(user.moderation.jobListingBan.unbannedAt)}` : "This ban is permanent." }}
+                </p>
             </CardBody>
         </Card>
         <Card v-else-if="isEditing" class="tw-p-1">
