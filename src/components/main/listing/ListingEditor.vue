@@ -105,8 +105,7 @@ async function handleEditSave() {
 }
 
 watch(listing, (newListing) => {
-    if (listing.value) editableListing.value = getEditableListing()
-    else editableListing.value = null;
+    getEditableListing()
 }, { immediate: true });
 
 async function handleImageButtonClick() {
@@ -144,7 +143,8 @@ async function handleImageButtonClick() {
                     <Button size="sm" variant="primary" @click="handleEditSave">Save</Button>
                 </div>
                 <div v-if="isEditable && !isEditing" class="tw-flex tw-flex-row tw-items-center tw-gap-2">
-                    <Button size="sm" variant="secondary" @click="handleEditStart">{{ listing ? 'Edit' : 'Create'}}</Button>
+                    <Button size="sm" variant="secondary" @click="handleEditStart">{{ listing ? 'Edit' :
+                        'Create'}}</Button>
                 </div>
                 <div v-else-if="!isEditable && isLoading">
                     <Skeleton class="tw-w-20 tw-h-6 tw-rounded" />
