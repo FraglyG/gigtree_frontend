@@ -158,7 +158,8 @@ watch(user, () => {
         <div>
             <!-- FIRST ROW -->
             <div class="tw-flex tw-flex-row tw-justify-between tw-flex-wrap tw-flex-gap-8">
-                <ProfileSnippet class="tw-my-4" />
+                <ProfileSnippet :overwrite-avatar="editableProfile?.profilePicture"
+                    :overwrite-name="`${editableProfile?.firstName} ${editableProfile?.lastName}`" class="tw-my-4" />
                 <div class="tw-flex tw-flex-row tw-gap-4 tw-items-center">
                     <!-- CTAs -->
                     <Button variant="primary" size="lg">
