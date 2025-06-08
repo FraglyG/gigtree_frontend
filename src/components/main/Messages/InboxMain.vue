@@ -118,7 +118,7 @@ onMounted(() => {
     return () => window.removeEventListener('popstate', handlePopState);
 });
 
-// Cleanup SSE connections when component unmounts
+// Cleanup SSE connections
 onUnmounted(() => {
     messageData.unsubscribeFromAllChannels();
     window.removeEventListener('popstate', handlePopState);
@@ -148,10 +148,10 @@ onUnmounted(() => {
                 <p class="tw-text-muted-foreground">Loading messages...</p>
             </div>
         </div>
-    </div>
-
+    </div>    
+    
     <!-- Main interface -->
-    <div v-else class="tw-h-full tw-flex tw-bg-background tw-overflow-hidden"> <!-- Channel List Sidebar -->
+    <div v-else class="tw-h-full tw-flex tw-bg-background tw-overflow-hidden tw-min-h-0"><!-- Channel List Sidebar -->
         <div class="tw-border-r tw-border-border tw-bg-muted/30 tw-flex tw-flex-col tw-overflow-hidden" :class="{
             'tw-hidden md:tw-block': !showMobileChannelList && hasSelectedChannel,
             'tw-w-full md:tw-w-80': showMobileChannelList,
@@ -175,10 +175,10 @@ onUnmounted(() => {
                     </div>
                     <p class="tw-text-muted-foreground">Loading conversation...</p>
                 </div>
-            </div>
-
+            </div>            
+            
             <!-- Chat Window -->
-            <div v-else-if="hasSelectedChannel" class="tw-flex-1 tw-flex tw-flex-col tw-overflow-hidden">
+            <div v-else-if="hasSelectedChannel" class="tw-flex-1 tw-flex tw-flex-col tw-min-h-0">
                 <!-- Mobile Back Button -->
                 <div
                     class="tw-flex md:tw-hidden tw-items-center tw-gap-2 tw-p-4 tw-border-b tw-border-border tw-flex-shrink-0">
@@ -188,8 +188,10 @@ onUnmounted(() => {
                     <span class="tw-text-lg tw-font-semibold">Back to Conversations</span>
                 </div>
 
-                <ChatWindow :message-data="messageData" :channel-id="selectedChannelId!"
-                    :channel-data="selectedChannelData!" />
+                <div class="tw-flex-1 tw-min-h-0">
+                    <ChatWindow :message-data="messageData" :channel-id="selectedChannelId!"
+                        :channel-data="selectedChannelData!" />
+                </div>
             </div>
 
             <!-- Empty State -->

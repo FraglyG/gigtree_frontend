@@ -144,9 +144,9 @@ updateChannelConnectionStatus();
 </script>
 
 <template>
-    <div class="tw-h-full tw-flex tw-flex-col">
+    <div class="tw-h-full tw-flex tw-flex-col tw-min-h-0">
         <!-- Chat Header -->
-        <div class="tw-p-4 tw-border-b tw-border-border tw-bg-background">
+        <div class="tw-p-4 tw-border-b tw-border-border tw-bg-background tw-flex-shrink-0">
             <div class="tw-flex tw-items-center tw-justify-between">
                 <div class="tw-flex tw-items-center tw-space-x-3">
                     <Avatar :src="channelAvatar" :size-px="40" />
@@ -166,10 +166,10 @@ updateChannelConnectionStatus();
                     <MoreVertical class="tw-w-5 tw-h-5" />
                 </Button>
             </div>
-        </div>
-
+        </div>        
+        
         <!-- Messages Container -->
-        <div ref="messagesContainer" class="scroll tw-flex-1 tw-overflow-y-auto tw-p-4 tw-space-y-4">
+        <div ref="messagesContainer" class="scroll tw-flex-1 tw-overflow-y-auto tw-p-4 tw-space-y-4 tw-min-h-0">
             <!-- Loading State -->
             <div v-if="isLoading" class="tw-space-y-4">
                 <div v-for="i in 8" :key="i" class="tw-flex tw-space-x-3"
@@ -208,10 +208,10 @@ updateChannelConnectionStatus();
             <div v-else class="tw-text-center tw-py-8">
                 <p class="tw-text-muted-foreground">No messages yet. Start the conversation!</p>
             </div>
-        </div>
-
+        </div>        
+        
         <!-- Message Input -->
-        <div class="tw-p-4 tw-border-t tw-border-border tw-bg-background">
+        <div class="tw-p-4 tw-border-t tw-border-border tw-bg-background tw-flex-shrink-0">
             <div class="tw-flex tw-items-center tw-space-x-2">
                 <div class="tw-flex-1 tw-relative">
                     <textarea v-model="newMessage" @keypress="handleKeyPress" placeholder="Type a message..." rows="1"
