@@ -38,5 +38,5 @@ npm run dev
 
 ## Production
 
-For production, the files should be served via a Caddy reverse proxy. 
-Works out of the box for the Nixpacks builder.
+For production, the files should be served via a proper server like Caddy (see Caddyfile). 
+Works out of the box for Railway, Scripter or Nixpacks builder.
