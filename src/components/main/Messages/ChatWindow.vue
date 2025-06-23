@@ -48,8 +48,14 @@ const isLoading = isChannelLoading(props.channelId);
 const error = computed(() => getMessagesError(props.channelId));
 
 const channelDisplayName = computed(() => getChannelDisplayName(props.channelData));
-const channelAvatar = computed(() => getChannelAvatar(props.channelData));
+const channelAvatar = ref<string | undefined>(undefined);
 const channelConnected = ref(false);
+
+// Update channel avatar
+watch([() => user.value, () => props.channelData], async ([userVal, channelDataVal]) => {
+    if (userVal) channelAvatar.value = await getChannelAvatar(userVal.userId, channelDataVal);
+    else channelAvatar.value = undefined;
+}, { immediate: true });
 
 const canSendMessage = computed(() => {
     return newMessage.value.trim().length > 0 &&

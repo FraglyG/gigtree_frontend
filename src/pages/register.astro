@@ -57,7 +57,7 @@ import { OctagonAlert, UserPlus } from "lucide-vue-next";
 							</label>
 							<label class="tw-flex tw-flex-col">
 								<span class="tw-text-base tw-mb-1">Confirm Password</span>
-								<input type="password" name="password" class="tw-border tw-border-gray-300 tw-rounded tw-p-2 tw-text-input" required />
+								<input type="password" name="confirm_password" class="tw-border tw-border-gray-300 tw-rounded tw-p-2 tw-text-input" required />
 							</label>
 							<div class="tw-flex tw-flex-row tw-gap-4 tw-mt-4">
 								<Button class="back_button tw-my-4" type="button" size="lg" variant="muted"> Back </Button>
@@ -151,6 +151,13 @@ import { OctagonAlert, UserPlus } from "lucide-vue-next";
 		const formData = new FormData(form);
 		const data = Object.fromEntries(formData.entries());
 
+		// Ensure password and confirm password match
+		if (data["password"] !== data["confirm_password"]) {
+			displayError("Passwords do not match.");
+			return;
+		}
+
+		// Submit
 		try {
 			const response = await api.request("/api/authv1/signup", {
 				method: "POST",

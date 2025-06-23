@@ -485,10 +485,17 @@ export function useMessenger() {
         return 'Unknown Chat';
     }
 
-    function getChannelAvatar(channel: ChannelData): string | undefined {
-        if (channel.otherUsers.length === 1) {
-            return channel.otherUsers[0].profile?.profilePicture;
-        }
+    async function getChannelAvatar(userId: string, channel: ChannelData): Promise<string | undefined> {
+        // if (channel.otherUsers.length === 1) {
+        //     return channel.otherUsers[0].profile?.profilePicture;
+        // }
+
+        const otherUserId = channel.ownerUserIds.find(userId => userId !== userId);
+        if (!otherUserId) return undefined;
+
+        const user = await getUserFromId(otherUserId);
+        if (user) return user.profile?.profilePicture;
+
         return undefined;
     }
 
