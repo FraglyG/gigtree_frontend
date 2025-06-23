@@ -48,14 +48,7 @@ const isLoading = isChannelLoading(props.channelId);
 const error = computed(() => getMessagesError(props.channelId));
 
 const channelDisplayName = computed(() => getChannelDisplayName(props.channelData));
-const channelAvatar = ref<string | undefined>(undefined);
 const channelConnected = ref(false);
-
-// Update channel avatar
-watch([() => user.value, () => props.channelData], async ([userVal, channelDataVal]) => {
-    if (userVal) channelAvatar.value = await getChannelAvatar(userVal.userId, channelDataVal);
-    else channelAvatar.value = undefined;
-}, { immediate: true });
 
 const canSendMessage = computed(() => {
     return newMessage.value.trim().length > 0 &&
@@ -155,7 +148,7 @@ updateChannelConnectionStatus();
         <div class="tw-p-4 tw-border-b tw-border-border tw-bg-background tw-flex-shrink-0">
             <div class="tw-flex tw-items-center tw-justify-between">
                 <div class="tw-flex tw-items-center tw-space-x-3">
-                    <Avatar :src="channelAvatar" :size-px="40" />
+                    <Avatar :src="user && getChannelAvatar(user.userId, channelData)" :size-px="40" />
                     <div>
                         <h3 class="tw-font-semibold tw-text-lg">{{ channelDisplayName }}</h3>
                         <p class="tw-text-sm tw-text-muted-foreground tw-flex tw-items-center tw-gap-1">

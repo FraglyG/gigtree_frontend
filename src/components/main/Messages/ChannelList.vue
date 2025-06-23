@@ -116,9 +116,8 @@ watch(channels, () => {
                 <div v-for="channel in filteredChannels" :key="channel.channelId" @click="selectChannel(channel)"
                     class="tw-p-3 tw-cursor-pointer tw-border-b tw-border-border/50 hover:tw-bg-muted/50 tw-transition-colors"
                     :class="{ 'tw-bg-muted': selectedChannelId === channel.channelId }">
-                    <div class="tw-flex tw-items-center tw-space-x-3">
-                        <!-- Avatar -->
-                        <Avatar :src="user && await getChannelAvatar(user.userId, channel)" :size-px="48" class="tw-flex-shrink-0" />
+                    <div class="tw-flex tw-items-center tw-space-x-3">                        <!-- Avatar -->
+                        <Avatar :src="user && getChannelAvatar(user.userId, channel)" :size-px="48" class="tw-flex-shrink-0" />
                         <!-- Content -->
                         <div class="tw-flex-1 tw-min-w-0">
                             <div class="tw-flex tw-items-center tw-justify-between tw-mb-1">
