@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MessageCircle, Search } from 'lucide-vue-next';
 import { Button } from '@/components/ui/Button';
+import { useGetUser } from '@/composables/getUser';
 
 const props = defineProps<{
     selectedChannelId?: string;
@@ -17,6 +18,7 @@ const emit = defineEmits<{
 }>();
 
 // Use messaging composable
+const { user } = useGetUser();
 const {
     channels,
     isLoadingChannels,
@@ -116,7 +118,7 @@ watch(channels, () => {
                     :class="{ 'tw-bg-muted': selectedChannelId === channel.channelId }">
                     <div class="tw-flex tw-items-center tw-space-x-3">
                         <!-- Avatar -->
-                        <Avatar :src="getChannelAvatar(channel)" :size-px="48" class="tw-flex-shrink-0" />
+                        <Avatar :src="user && await getChannelAvatar(user.userId, channel)" :size-px="48" class="tw-flex-shrink-0" />
                         <!-- Content -->
                         <div class="tw-flex-1 tw-min-w-0">
                             <div class="tw-flex tw-items-center tw-justify-between tw-mb-1">
